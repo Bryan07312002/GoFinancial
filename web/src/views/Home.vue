@@ -1,0 +1,103 @@
+<template>
+    <div class="min-h-screen flex">
+        <div class="flex flex-col min-h-screen gap-4 p-4 w-full max-w-[1042px] mx-auto">
+            <div class="flex  w-full justify-around gap-4 flex-wrap">
+
+                <card class="flex-1 min-w-32 h-28 p-4 flex flex-col justify-between">
+                    <div class="w-full flex items-center justify-between">
+                        <div>Total Balance</div>
+                        <bank-icon class="w-6 h-6 stroke-primary" />
+                    </div>
+
+                    <b class="text-xl">R$ 24562,00</b>
+                </card>
+
+                <card class="flex-1 min-w-32 h-28 p-4 flex flex-col justify-between">
+                    <div class="w-full flex items-center justify-between">
+                        <div>Total Credit</div>
+
+                        <wallet-icon class="w-6 h-6 stroke-primary" />
+                    </div>
+
+                    <b class="text-xl text-green-300">R$ 24562,00</b>
+                </card>
+
+                <card class="flex-1 min-w-32 h-28 p-4 flex flex-col justify-between">
+                    <div class="w-full flex items-center justify-between">
+                        <div>Total Debt</div>
+
+                        <credit-card-icon class="w-6 h-6 stroke-primary" />
+                    </div>
+
+                    <b class="text-xl text-red-300">R$ 24562,00</b>
+                </card>
+            </div>
+
+            <div class="flex w-full justify-around gap-4 flex-wrap flex-grow min-h-96 h-1/3">
+                <bank-account-list :is-loading="isBankAccounts" :bank-accounts="bankAccounts" class="flex-1" />
+                <recent-transfer-activities :is-loading="isTransactions" :transactions="transactions" class="flex-1" />
+            </div>
+
+            <card class="flex-1 h-1/5 flex-grow min-h-[200px]">
+                200
+            </card>
+        </div>
+    </div>
+
+</template>
+
+<script setup lang="ts">
+import Card from "../components/Card.vue";
+import CreditCardIcon from "../assets/CreditCardIcon.vue"
+import WalletIcon from "../assets/WalletIcon.vue"
+import BankIcon from "../assets/BankIcon.vue"
+import BankAccountList from "../components/BankAccountList.vue";
+import RecentTransferActivities from "../components/RecentTransferActivities.vue";
+import { type BankAccount } from "../services/bankAccounts/bankAccounts";
+import { type Transaction, TransactionType, PaymentMethod } from "../services/transactions/transaction";
+import { ref, type Ref } from "vue";
+
+const isBankAccounts = ref(false);
+// @ts-ignore: dont know why but ts i being crazy here
+const bankAccounts: Ref<BankAccount[]> = ref([
+    { id: 1, name: 'Nubank', credit: 3000.00, debt: 0 },
+    { id: 2, name: 'BB', credit: 0, debt: 0 },
+]);
+
+const isTransactions = ref(false);
+const transactions: Ref<Transaction[]> = ref([
+    {
+        id: 1,
+        type: TransactionType.Income,
+        method: PaymentMethod.DebitCard,
+        establishment: "work",
+        credit: false,
+        value: 2000.00,
+        date: new Date(Date.now()),
+        cardId: 1,
+        bankAccountId: 1,
+    },
+    {
+        id: 1,
+        type: TransactionType.Expense,
+        method: PaymentMethod.DebitCard,
+        establishment: "zaffari",
+        credit: false,
+        value: 2000.00,
+        date: new Date(Date.now()),
+        cardId: 1,
+        bankAccountId: 1,
+    },
+    {
+        id: 1,
+        type: TransactionType.Expense,
+        method: PaymentMethod.DebitCard,
+        establishment: "zaffari",
+        credit: false,
+        value: 2000.00,
+        date: new Date(Date.now()),
+        cardId: 1,
+        bankAccountId: 1,
+    },
+]);
+</script>
