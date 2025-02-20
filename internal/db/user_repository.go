@@ -1,0 +1,66 @@
+package db
+
+import (
+	"financial/internal/models"
+	"gorm.io/gorm"
+)
+
+// Easier to test another itens that depends on this if interface is exported
+type UserRepository interface {
+	Create(user models.User) (uint, error)
+	FindById(id uint) (models.User, error)
+	FindByName(name string) (models.User, error)
+}
+
+type userRepository struct {
+	conn *gorm.DB
+}
+
+func ToUserTable(user models.User) UserTable {
+	return UserTable{
+		ID:       user.ID,
+		Name:     user.Name,
+		Password: user.Password,
+	}
+}
+
+func ToUser(userTable UserTable) models.User {
+	return models.User{
+		ID:       userTable.ID,
+		Name:     userTable.Name,
+		Password: userTable.Password,
+	}
+}
+
+func NewUserRepository(conn *gorm.DB) UserRepository {
+	return &userRepository{conn}
+}
+
+func (r *userRepository) Create(user models.User) (uint, error) {
+	userInstance := ToUserTable(user)
+	err := r.conn.Create(&userInstance).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return userInstance.ID, nil
+}
+
+func (r *userRepository) FindByName(name string) (models.User, error) {
+	var userTable UserTable
+
+	err := r.conn.Where("name = ?", name).First(&userTable).Error
+	if err != nil {
+		return models.User{}, err
+	}
+
+	user := ToUser(userTable)
+	return user, nil
+}
+
+func (r *userRepository) FindById(id uint) (models.User, error) {
+	var userTableInstance UserTable
+	r.conn.First(&userTableInstance, id)
+
+	return ToUser(userTableInstance), nil
+}
