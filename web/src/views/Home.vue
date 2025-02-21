@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen flex">
-        <div class="flex flex-col min-h-screen gap-4 p-4 w-full max-w-[1042px] mx-auto">
+        <div class="flex flex-col min-h-screen gap-4 p-4 w-full max-w-7xl mx-auto">
             <div class="flex  w-full justify-around gap-4 flex-wrap">
 
                 <card class="flex-1 min-w-32 h-28 p-4 flex flex-col justify-between">
@@ -34,8 +34,10 @@
             </div>
 
             <div class="flex w-full justify-around gap-4 flex-wrap flex-grow min-h-96 h-1/3">
-                <bank-account-list :is-loading="isBankAccounts" :bank-accounts="bankAccounts" class="flex-1" />
-                <recent-transfer-activities :is-loading="isTransactions" :transactions="transactions" class="flex-1" />
+                <bank-account-list @create-bank-account="openCreateBankAccountModal" :is-loading="isBankAccountsLoading"
+                    :bank-accounts="bankAccounts" class="flex-1" />
+                <recent-transfer-activities @new-transaction="openNewTransactionModal"
+                    :is-loading="isTransactionsLoading" :transactions="transactions" class="flex-1" />
             </div>
 
             <card class="flex-1 h-1/5 flex-grow min-h-[200px]">
@@ -43,28 +45,65 @@
             </card>
         </div>
     </div>
-
+    <modal v-if="modalState.isOpen">
+        <card class="p-4 w-full max-w-sm">
+            <create-bank-account @close-button="closeModal" @cancel-button="closeModal" should-have-close-button
+                v-if="modalState.state === ModalState.CreateBankAccount" />
+            <new-transaction should-have-close-button />
+        </card>
+    </modal>
 </template>
 
 <script setup lang="ts">
 import Card from "../components/Card.vue";
-import CreditCardIcon from "../assets/CreditCardIcon.vue"
-import WalletIcon from "../assets/WalletIcon.vue"
+import Modal from "../components/Modal.vue";
 import BankIcon from "../assets/BankIcon.vue"
+import { ref, onMounted, type Ref } from "vue";
+import WalletIcon from "../assets/WalletIcon.vue"
+import CreditCardIcon from "../assets/CreditCardIcon.vue"
 import BankAccountList from "../components/BankAccountList.vue";
+import CreateBankAccount from "../components/CreateBankAccount.vue";
+import NewTransaction from "../components/NewTransaction.vue";
 import RecentTransferActivities from "../components/RecentTransferActivities.vue";
-import { type BankAccount } from "../services/bankAccounts/bankAccounts";
+import { BankAccountService, type BankAccount } from "../services/bankAccounts/bankAccounts";
 import { type Transaction, TransactionType, PaymentMethod } from "../services/transactions/transaction";
-import { ref, type Ref } from "vue";
 
-const isBankAccounts = ref(false);
+enum ModalState {
+    CreateBankAccount,
+    NewTransaction,
+}
+
+const modalState = ref({
+    isOpen: false,
+    state: ModalState.CreateBankAccount,
+})
+
+const isBankAccountsLoading = ref(false);
 // @ts-ignore: dont know why but ts i being crazy here
 const bankAccounts: Ref<BankAccount[]> = ref([
     { id: 1, name: 'Nubank', credit: 3000.00, debt: 0 },
     { id: 2, name: 'BB', credit: 0, debt: 0 },
 ]);
 
-const isTransactions = ref(false);
+onMounted(async () => {
+    await BankAccountService.getPaginate(0, 0);
+});
+
+function openCreateBankAccountModal() {
+    modalState.value.isOpen = true;
+    modalState.value.state = ModalState.CreateBankAccount;
+}
+
+function openNewTransactionModal() {
+    modalState.value.isOpen = true;
+    modalState.value.state = ModalState.NewTransaction;
+}
+
+function closeModal() {
+    modalState.value.isOpen = false;
+}
+
+const isTransactionsLoading = ref(false);
 const transactions: Ref<Transaction[]> = ref([
     {
         id: 1,

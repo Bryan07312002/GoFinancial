@@ -2,7 +2,7 @@
     <card class="min-w-80 p-4 flex flex-col gap-4">
         <div class="flex justify-between items-center">
             <div class="text-2xl">Recent Activities</div>
-            <Button @click="emits('ClickedOnNewBankAccount')" text="New Bank Account" />
+            <Button @click="emits('newTransaction')" text="New Transaction" />
         </div>
 
         <div v-if="isLoading" class="flex items-center justify-center h-full">
@@ -10,23 +10,23 @@
         </div>
 
         <div v-else class="flex flex-col gap-4 h-full">
-            <card @click="emits('ClickedOnTransaction', transaction)" v-for="transaction in transactions"
-                class="cursor-pointer flex justify-between p-4 hover:brightness-50">
-                <div class="flex gap-4">
+            <div @click="emits('openTransaction', transaction)" v-for="transaction in transactions"
+                class="cursor-pointer flex justify-between p-4 hover:bg-[var(--accent)] rounded-[var(--radius)]">
+                <div class="flex gap-4 items-center">
 
                     <arrow-up-icon class="w-6 h-6 text-green-300" v-if="transaction.type == TransactionType.Income" />
                     <arrow-down-icon class="w-6 h-6 stroke-red-300 " v-else />
 
                     <div>
                         <div>{{ transaction.establishment }}</div>
-                        <div class="text-primary">{{ formatDate(transaction.date) }}</div>
+                        <div class="text-[var(--muted-foreground)]">{{ formatDate(transaction.date) }}</div>
                     </div>
                 </div>
 
                 <div v-if="transaction.type == TransactionType.Income" class="text-green-300"> R$ {{ transaction.value
                     }} </div>
-                <div v-else class="text-red-300"> R$ {{ transaction.value }} </div>
-            </card>
+                <div v-else class="text-[var(--des)]"> R$ {{ transaction.value }} </div>
+            </div>
         </div>
     </card>
 </template>
@@ -43,7 +43,7 @@ import {
 } from '../services/transactions/transaction';
 
 defineProps<{ transactions: Transaction[], isLoading?: boolean }>();
-const emits = defineEmits(["ClickedOnTransaction", "ClickedOnNewBankAccount"]);
+const emits = defineEmits(["openTransaction", "newTransaction"]);
 
 function formatDate(date: Date) {
     const today = new Date();

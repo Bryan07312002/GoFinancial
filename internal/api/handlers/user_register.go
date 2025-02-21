@@ -5,7 +5,6 @@ import (
 	"financial/internal/db"
 	"financial/internal/hash"
 	"financial/internal/services"
-	"fmt"
 	"net/http"
 
 	"gorm.io/gorm"

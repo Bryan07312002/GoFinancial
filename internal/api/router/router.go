@@ -26,19 +26,19 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 	protected := r.NewRoute().Subrouter()
 	protected.Use(middlewares.CreateAuthMiddleware(jwtKey))
 
-	protected.HandleFunc("/bank_account",
+	protected.HandleFunc("/bank_accounts",
 		handlers.CreateCreateBankAccountHandler(dbCon)).Methods("POST")
-	protected.HandleFunc("/bank_account",
+	protected.HandleFunc("/bank_accounts",
 		handlers.CreatePaginateBankAccountHandler(dbCon)).Methods("GET")
-	protected.HandleFunc("/bank_account/{id}",
+	protected.HandleFunc("/bank_accounts/{id}",
 		handlers.CreateBankAccountDelete(dbCon)).Methods("DELETE")
 
-	protected.HandleFunc("/card",
+	protected.HandleFunc("/cards",
 		handlers.CreateCreateCard(dbCon)).Methods("POST")
 
-	protected.HandleFunc("/transaction",
+	protected.HandleFunc("/transactions",
 		handlers.CreateCreateTransaction(dbCon)).Methods("POST")
-	protected.HandleFunc("/transaction/{id}",
+	protected.HandleFunc("/transactions/{id}",
 		handlers.CreateTransactionDelete(dbCon)).Methods("DELETE")
 
 	protected.HandleFunc("/items",

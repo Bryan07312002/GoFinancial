@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import Cookies from 'js-cookie';
+import { computed } from 'vue';
 import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 
 interface JwtPayload {
     exp: number;
-    // Add other claims as needed
 }
 
 export const useAuthStore = defineStore('auth', () => {
     // State
-    const token = ref<string | null>(null);
+    const token = computed(() => {
+        return Cookies.get('jwt')
+    });
 
     // Helper function to validate token
     const isTokenValid = (t: string) => {
@@ -29,28 +30,13 @@ export const useAuthStore = defineStore('auth', () => {
 
         Cookies.set('jwt', newToken, {
             expires,
-            // FIXME: get real env
             secure: import.meta.env.VITE_API_ENV === 'production',
             sameSite: 'Strict',
         });
-
-        token.value = newToken;
     };
 
     const clearToken = () => {
         Cookies.remove('jwt');
-        token.value = null;
-    };
-
-    const initializeFromCookie = () => {
-        const cookieToken = Cookies.get('jwt');
-        if (cookieToken) {
-            if (isTokenValid(cookieToken)) {
-                token.value = cookieToken;
-            } else {
-                clearToken();
-            }
-        }
     };
 
     // Getters
@@ -63,6 +49,5 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         setToken,
         clearToken,
-        initializeFromCookie,
     };
 });

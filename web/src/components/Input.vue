@@ -3,8 +3,7 @@
         <label class="pb-1" v-if="label" for="">{{ label }}</label>
         <input :value="value" @input="$emit('update:value', ($event.target as any).value)"
             :disabled="disabled != undefined && disabled" :placeholder="placeholder"
-            class="border border-[var(--border)] rounded-[var(--radius)] focus:border-[#ad2ca9] focus:outline-none p-2"
-            type="" name="" id="">
+            class="border border-[var(--border)] rounded-[var(--radius)] focus:border-[var(--primary)] focus:outline-none p-2">
     </div>
 </template>
 

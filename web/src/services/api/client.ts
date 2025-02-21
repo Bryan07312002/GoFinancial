@@ -28,6 +28,7 @@ const createRequest = async <T>(
             ...getAuthHeader(),
             ...config?.headers
         } as any;
+        console.log(headers)
 
         const response = await fetch(`${baseUrl}${url}`, {
             method,

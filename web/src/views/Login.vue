@@ -42,7 +42,6 @@ async function handleSignIn(): Promise<void> {
     try {
         const response = await authService.signIn(loginForm.value);
         authStore.setToken(response.token)
-
         emits("authenticated")
     } catch (e) {
         console.error(e)
