@@ -8,6 +8,10 @@ import (
 type TransactionRepository interface {
 	Create(transaction *models.Transaction) (uint, error)
 	FindByID(id uint) (models.Transaction, error)
+	PaginateFromUserID(
+		paginteOpt PaginateOptions,
+		userID uint,
+	) (PaginateResult[models.Transaction], error)
 	Delete(id uint) error
 }
 
@@ -71,6 +75,13 @@ func (c *transactionRepository) FindByID(id uint) (models.Transaction, error) {
 
 	transaction := ToTransaction(transactionTableInstance)
 	return transaction, nil
+}
+
+func (b *transactionRepository) PaginateFromUserID(
+	paginateOpt PaginateOptions,
+	userID uint,
+) (PaginateResult[models.Transaction], error) {
+    panic("")
 }
 
 func (b *transactionRepository) Delete(id uint) error {

@@ -11,8 +11,8 @@ import (
 )
 
 type CreateBankAccount struct {
-	Name        string
-	Description string
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func CreateCreateBankAccountHandler(con *gorm.DB) http.HandlerFunc {

@@ -11,16 +11,30 @@
             </div>
         </div>
 
-        <Input v-model:value="newTransaction.establishment" placeholder="Establishment" />
+        <toggle-group label="Transaction Type" :disabled="isLoading" :options="[
+            { name: TransactionType.Income, value: TransactionType.Income },
+            { name: TransactionType.Expense, value: TransactionType.Expense }
+        ]" v-model:value="newTransaction.type" />
 
-        <div class="flex items-end">
-            <div class="pr-2 font-light">R$</div>
-            <Input class="w-full" v-model:value="newTransaction.establishment" placeholder="value" />
-            <check-box />
+        <toggle-group label="Payment Method" :disabled="isLoading" :options="[
+            { name: 'Credit Card', value: PaymentMethod.CreditCard },
+            { name: 'Debit Card', value: PaymentMethod.DebitCard },
+            { name: 'Other', value: PaymentMethod.Other }
+        ]" v-model:value="newTransaction.method" />
+
+        <Input :disabled="isLoading" v-model:value="newTransaction.establishment" placeholder="Establishment" />
+
+        <monetary-input :disabled="isLoading" v-model:value="newTransaction.value" placeholder="value" />
+
+        <lazy-drop-down-input :disabled="isLoading" @search="getBankAccounts($event)" placeholder="Bank Account"
+            v-model:value="newTransaction.bankAccountId" :options="bankAccountsOptions" />
+
+        <date-picker-input :disabled="isLoading" v-model:value="newTransaction.date" />
+
+        <div class="flex gap-4">
+            <check-box :disabled="isLoading" v-model:value="newTransaction.credit" />
+            <div>Credit transaction</div>
         </div>
-
-        <drop-down-input placeholder="Bank Account" v-model:value="newTransaction.bankAccountId"
-            :options="[{ label: 'Hell', value: 1 }]" />
 
         <div class="flex gap-4 justify-between w-full">
             <Button :is-loading="isLoading" bottom-color-type="secondary" class="flex-1" text="Cancel"
@@ -32,34 +46,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, computed, type Ref } from 'vue';
 import Input from './Input.vue';
-import DropDownInput from './DropDownInput.vue';
+import MonetaryInput from './MonetaryInput.vue';
+import LazyDropDownInput from './LazyDropDownInput.vue';
+import DatePickerInput from './DatePickerInput.vue';
+import ToggleGroup from './ToggleGroup.vue';
 import CheckBox from './CheckBox.vue';
+import Button from './Button.vue';
 import ArrowLeftRight from '../assets/ArrowLeftRight.vue';
 import {
     TransactionType,
     PaymentMethod,
     type Transaction,
+    TransactionService,
 } from '../services/transactions/transaction';
-import type { Ref } from 'vue';
+import { BankAccountService, type BankAccount } from '../services/bankAccounts/bankAccounts';
 
 defineProps<{ shouldHaveCloseButton?: boolean }>();
 
-const emits = defineEmits(['closeButton', 'cancelButton']);
+const emits = defineEmits(['closeButton', 'cancelButton', 'created']);
 const isLoading = ref(false);
+const bankAccounts: Ref<BankAccount[]> = ref([]);
+const bankAccountsOptions = computed(() =>
+    bankAccounts.value.map(account => ({ name: account.name, value: account.id })));
 
-// @ts-ignore
+onMounted(() => getBankAccounts(''));
+
+async function getBankAccounts(search: string) {
+    bankAccounts.value = (await BankAccountService.getPaginate(0, 0)).data;
+}
+
+
+// @ts-ignore lsp being crazy
 const newTransaction: Ref<Transaction> = ref({
     type: TransactionType.Expense,
-    method: PaymentMethod.Other,
+    method: PaymentMethod.DebitCard,
     establishment: '',
     credit: false,
     value: 0,
-    date: Date(),
-    cardId: 1,
+    date: new Date(),
+    cardId: null,
     bankAccountId: 1,
 })
 
-async function handleSave() { }
+async function handleSave() {
+    isLoading.value = true;
+    await TransactionService.create({ ...newTransaction.value });
+    isLoading.value = false;
+
+    emits("created")
+}
 </script>

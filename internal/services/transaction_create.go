@@ -39,6 +39,7 @@ func (c *CreateTransactionService) Run(
 	newTransaction CreateTransaction,
 	userId uint,
 ) error {
+
 	bankAccount, err := c.bankAccountRepo.FindByID(newTransaction.BankAccountID)
 	if err != nil {
 		return err
@@ -48,6 +49,7 @@ func (c *CreateTransactionService) Run(
 		return errors.New("Cant create transaction for another user bank account")
 	}
 
+	// FIXME: TODO: check if date is valid
 	if newTransaction.Date == nil {
 		now := time.Now().String()
 		newTransaction.Date = &now
@@ -73,8 +75,7 @@ func (c *CreateTransactionService) Run(
 		method = models.PaymentMethod(*newTransaction.Method)
 	}
 
-	// Parse the string into a time.Time object
-	time, _, err := utils.ParseTimestamp(*newTransaction.Date)
+	time, err := utils.ParseTime(*newTransaction.Date)
 	if err != nil {
 		return err
 	}

@@ -29,7 +29,8 @@ import BankIcon from "../assets/BankIcon.vue";
 import { BankAccountService, type CreateBankAccount } from "../services/bankAccounts/bankAccounts";
 
 defineProps<{ shouldHaveCloseButton?: boolean }>()
-//@ts-ignore lsp beeing crazy
+
+//@ts-ignore lsp being crazy
 const createBankAccount: Ref<CreateBankAccount> = ref({
     name: "",
     description: "",
@@ -39,11 +40,14 @@ const isLoading = ref(false);
 
 const emits = defineEmits(["closeButton", "cancelButton", "created"])
 async function handleSave() {
+    isLoading.value = true;
     try {
         await BankAccountService.createBankAccount(createBankAccount.value);
         emits("created");
     } catch (e) {
         // FIXME: Handle errors
     }
+
+    isLoading.value = false;
 }
 </script>

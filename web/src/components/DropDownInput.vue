@@ -1,103 +1,37 @@
 <template>
-    <div class="flex flex-col relative" v-click-outside="closeDropdown">
+    <div class="flex flex-col">
         <label class="pb-1" v-if="label">{{ label }}</label>
-
-        <!-- Dropdown trigger -->
-        <div class="relative">
-            <button type="button" @click="toggleDropdown" :disabled="disabled"
-                class="w-full flex justify-between items-center border border-[var(--border)] rounded-[var(--radius)] p-2 text-left focus:border-[var(--primary)] focus:outline-none disabled:opacity-50">
-                <span class="flex flex-wrap gap-1">
-                    <template v-if="multiple && selectedOptions.length > 0">
-                        <span v-for="option in selectedOptions" :key="option.value"
-                            class="px-2 py-1 bg-[var(--primary)] rounded-[var(--radius)] text-sm">
-                            {{ option.label }}
-                        </span>
-                    </template>
-                    <span v-else-if="!multiple && selectedOption">
-                        {{ selectedOption.label }}
-                    </span>
-                    <span v-else class="text-gray-400">
-                        {{ placeholder }}
-                    </span>
-                </span>
-                <span class="transform transition-transform" :class="{ 'rotate-180': isOpen }">▼</span>
-            </button>
-
-            <!-- Dropdown content -->
-            <div v-show="isOpen"
-                class="absolute z-10 w-full mt-1 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius)] shadow-lg max-h-60 overflow-auto">
-                <!-- Options list with checkboxes -->
-                <ul>
-                    <li v-for="option in options" :key="option.value" @click="toggleOption(option)"
-                        class="p-2 hover:bg-[var(--primary-hover)] cursor-pointer flex items-center gap-2"
-                        :class="{ 'bg-[var(--primary-hover)]': isSelected(option) }">
-                        <input type="checkbox" :checked="isSelected(option)"
-                            class="w-4 h-4 text-[var(--primary)] focus:ring-[var(--primary)]"
-                            :class="{ 'opacity-50': disabled }" @click.stop>
-                        <span>{{ option.label }}</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <select :value="value" @change="$emit('update:value', ($event.target as HTMLSelectElement).value)"
+            :disabled="disabled"
+            class="border border-[var(--border)] rounded-[var(--radius)] focus:border-[var(--primary)] focus:outline-none p-2 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ii8+PC9zdmc+')] bg-no-repeat bg-[right_0.5rem_center]">
+            <option v-if="placeholder" value="" disabled selected hidden>{{ placeholder }}</option>
+            <option v-for="option in normalizedOptions" :key="option.value" :value="option.value"
+                :disabled="option.disabled">
+                {{ option.label }}
+            </option>
+        </select>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-
-interface Option {
-    label: string;
-    value: string | number;
-}
+import { computed } from 'vue'
 
 const props = defineProps<{
-    value: string | number | Array<string | number>;
-    options: Option[];
-    label?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    multiple?: boolean;
-}>();
+    value: string | number,
+    options: Array<string | { value: string | number, label: string, disabled?: boolean }>
+    label?: string,
+    placeholder?: string,
+    disabled?: boolean,
+}>()
 
-const emit = defineEmits(['update:modelValue']);
+defineEmits(['update:value'])
 
-const isOpen = ref(false);
-
-// Handle click outside
-const closeDropdown = () => isOpen.value = false;
-const toggleDropdown = () => isOpen.value = !isOpen.value;
-
-// Handle selections
-const isSelected = (option: Option) => {
-    return props.multiple
-        ? (props.modelValue as Array<string | number>).includes(option.value)
-        : props.modelValue === option.value;
-};
-
-const toggleOption = (option: Option) => {
-    if (props.multiple) {
-        const newValue = [...props.modelValue as Array<string | number>];
-        const index = newValue.indexOf(option.value);
-
-        index === -1
-            ? newValue.push(option.value)
-            : newValue.splice(index, 1);
-
-        emit('update:modelValue', newValue);
-    } else {
-        emit('update:modelValue', option.value);
-        closeDropdown();
-    }
-};
-
-// Display helpers
-const selectedOption = computed(() =>
-    props.options.find(opt => opt.value === props.modelValue)
-);
-
-const selectedOptions = computed(() =>
-    props.options.filter(opt =>
-        (props.modelValue as Array<string | number>).includes(opt.value)
-    )
-);
+const normalizedOptions = computed(() => {
+    return props.options.map(option => {
+        if (typeof option === 'string') {
+            return { value: option, label: option }
+        }
+        return option
+    })
+})
 </script>

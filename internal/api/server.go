@@ -39,7 +39,7 @@ func (s *Server) Run() error {
 		ExposedHeaders:   []string{"X-Total-Count", "Location"},
 		AllowCredentials: true,
 		MaxAge:           300,
-		Debug:            true,
+		Debug:            false,
 	})
 
 	srv := &http.Server{

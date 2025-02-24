@@ -1,12 +1,12 @@
 <template>
-    <div class="flex flex-col relative" v-click-outside="closeDropdown">
+    <div class="flex flex-col relative">
         <label class="pb-1" v-if="label">{{ label }}</label>
 
         <!-- Dropdown trigger -->
-        <div class="relative">
+        <div class="relative" :class="disabled ? 'brightness-50' : ''">
             <button type="button" @click="toggleDropdown" :disabled="disabled"
                 class="w-full flex justify-between items-center border border-[var(--border)] rounded-[var(--radius)] p-2 text-left focus:border-[var(--primary)] focus:outline-none disabled:opacity-50">
-                <span v-if="selectedOption">{{ selectedOption.label }}</span>
+                <span v-if="selectedOption">{{ selectedOption.name }}</span>
                 <span v-else class="text-gray-400">{{ placeholder }}</span>
                 <span class="transform transition-transform" :class="{ 'rotate-180': isOpen }">▼</span>
             </button>
@@ -26,7 +26,7 @@
                     <li v-for="option in filteredOptions" :key="option.value" @click="selectOption(option)"
                         class="p-2 hover:bg-[var(--primary)] cursor-pointer"
                         :class="{ 'bg-[var(--primary-hover)]': option.value === value }">
-                        {{ option.label }}
+                        {{ option.name }}
                     </li>
                 </ul>
             </div>
@@ -38,7 +38,7 @@
 import { ref, computed, watch } from 'vue';
 
 interface Option {
-    label: string;
+    name: string;
     value: string | number;
 }
 
@@ -68,7 +68,7 @@ const selectedOption = computed(() =>
 // Filter options locally
 const filteredOptions = computed(() =>
     props.options.filter(opt =>
-        opt.label.toLowerCase().includes(searchQuery.value.toLowerCase())
+        opt.name.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
 );
 

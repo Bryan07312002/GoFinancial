@@ -1,5 +1,4 @@
 import { useAuthStore } from '../../stores/authentication';
-import { useRouter } from 'vue-router';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -28,7 +27,6 @@ const createRequest = async <T>(
             ...getAuthHeader(),
             ...config?.headers
         } as any;
-        console.log(headers)
 
         const response = await fetch(`${baseUrl}${url}`, {
             method,

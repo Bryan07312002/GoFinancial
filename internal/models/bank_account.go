@@ -1,9 +1,8 @@
 package models
 
 type BankAccount struct {
-	ID     uint
-	UserID uint
-
-	Name        string
-	Description string
+	ID          uint   `json:"id"`
+	UserID      uint   `json:"user_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }

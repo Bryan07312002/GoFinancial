@@ -47,9 +47,12 @@
     </div>
     <modal v-if="modalState.isOpen">
         <card class="p-4 w-full max-w-sm">
-            <create-bank-account @close-button="closeModal" @cancel-button="closeModal" should-have-close-button
+            <create-bank-account @created="handleCreatedBankAccount" @close-button="closeModal"
+                @cancel-button="closeModal" should-have-close-button
                 v-if="modalState.state === ModalState.CreateBankAccount" />
-            <new-transaction should-have-close-button />
+
+            <new-transaction @close-button="closeModal" @cancel-button="closeModal" should-have-close-button
+                v-if="modalState.state === ModalState.NewTransaction" />
         </card>
     </modal>
 </template>
@@ -78,15 +81,23 @@ const modalState = ref({
     state: ModalState.CreateBankAccount,
 })
 
-const isBankAccountsLoading = ref(false);
+const isBankAccountsLoading = ref(true);
 // @ts-ignore: dont know why but ts i being crazy here
-const bankAccounts: Ref<BankAccount[]> = ref([
-    { id: 1, name: 'Nubank', credit: 3000.00, debt: 0 },
-    { id: 2, name: 'BB', credit: 0, debt: 0 },
-]);
+const bankAccounts: Ref<BankAccount[]> = ref([]);
+
+async function getBankAccounts() {
+    isBankAccountsLoading.value = true;
+    bankAccounts.value = (await BankAccountService.getPaginate(0, 0)).data;
+    isBankAccountsLoading.value = false;
+}
+
+async function handleCreatedBankAccount() {
+    closeModal();
+    getBankAccounts();
+}
 
 onMounted(async () => {
-    await BankAccountService.getPaginate(0, 0);
+    getBankAccounts();
 });
 
 function openCreateBankAccountModal() {

@@ -112,9 +112,13 @@ func (c *CardRepositoryMock) Delete(id uint) error {
 }
 
 type TransactionRepositoryMock struct {
-	CreateFunc   func(transaction *models.Transaction) (uint, error)
-	FindByIDFunc func(id uint) (models.Transaction, error)
-	DeleteFunc   func(id uint) error
+	CreateFunc             func(transaction *models.Transaction) (uint, error)
+	FindByIDFunc           func(id uint) (models.Transaction, error)
+	PaginateFromUserIDFunc func(
+		paginateOpt db.PaginateOptions,
+		userID uint,
+	) (db.PaginateResult[models.Transaction], error)
+	DeleteFunc func(id uint) error
 }
 
 func (t *TransactionRepositoryMock) Delete(id uint) error {
@@ -123,6 +127,13 @@ func (t *TransactionRepositoryMock) Delete(id uint) error {
 
 func (t *TransactionRepositoryMock) FindByID(id uint) (models.Transaction, error) {
 	return t.FindByIDFunc(id)
+}
+
+func (b *TransactionRepositoryMock) PaginateFromUserID(
+	paginateOpt db.PaginateOptions,
+	userID uint,
+) (db.PaginateResult[models.Transaction], error) {
+	return b.PaginateFromUserIDFunc(paginateOpt, userID)
 }
 
 func (t *TransactionRepositoryMock) Create(transaction *models.Transaction) (uint, error) {
