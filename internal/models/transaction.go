@@ -67,3 +67,8 @@ type Transaction struct {
 	CardID        *uint
 	BankAccountID uint
 }
+
+type TransactionWithBadges struct {
+	Transaction
+	Badges []Badge
+}

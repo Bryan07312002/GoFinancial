@@ -2,18 +2,17 @@ package services
 
 import (
 	"financial/internal/db"
-	"financial/internal/models"
 )
 
 type PaginateTransactions struct {
 	transactionRepo db.TransactionRepository
 }
 
-func NewPaginateTransactions(
+func NewRecentTransactions(
 	transactionRepo db.TransactionRepository) PaginateTransactions {
 	return PaginateTransactions{transactionRepo}
 }
 
-func (p *PaginateTransactions) Run() db.PaginateResult[models.BankAccount] {
-	panic("not implemented yet")
+func (p *PaginateTransactions) Run(userId uint) {
+	p.transactionRepo.GetRecentTransactions(userId)
 }

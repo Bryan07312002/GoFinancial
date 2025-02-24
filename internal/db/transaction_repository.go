@@ -2,6 +2,8 @@ package db
 
 import (
 	"financial/internal/models"
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -12,6 +14,7 @@ type TransactionRepository interface {
 		paginteOpt PaginateOptions,
 		userID uint,
 	) (PaginateResult[models.Transaction], error)
+	GetRecentTransactions(userID uint) ([]TransactionTable, error)
 	Delete(id uint) error
 }
 
@@ -81,7 +84,34 @@ func (b *transactionRepository) PaginateFromUserID(
 	paginateOpt PaginateOptions,
 	userID uint,
 ) (PaginateResult[models.Transaction], error) {
-    panic("")
+	panic("")
+}
+
+func (b *transactionRepository) GetRecentTransactions(userID uint) ([]TransactionTable, error) {
+	var transactions []TransactionTable
+
+	// Subquery to get the user's bank account IDs
+	subquery := b.db.Model(&BankAccountTable{}).Select("id").Where("user_id = ?", userID)
+
+	// Main query to fetch transactions, preload relationships, and apply conditions
+	err := b.db.
+		Preload("BankAccount").
+		Preload("Card").
+		Preload("Items.Badges"). // Preload items and their badges
+		Where("bank_account_id IN (?)", subquery).
+		Order("date DESC").
+		Limit(5).
+		Find(&transactions).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(transactions); i++ {
+
+		fmt.Printf("%+v\n", transactions[i].Items)
+	}
+	return transactions, nil
 }
 
 func (b *transactionRepository) Delete(id uint) error {

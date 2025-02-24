@@ -62,6 +62,7 @@ type TransactionTable struct {
 
 	BankAccountID uint             `gorm:"index;not null"`
 	BankAccount   BankAccountTable `gorm:"foreignKey:BankAccountID"`
+	Items         []ItemTable      `gorm:"foreignKey:TransactionID"`
 }
 
 func (TransactionTable) TableName() string {
@@ -87,9 +88,9 @@ func (ItemTable) TableName() string {
 }
 
 type ItemBadgeTable struct {
-    // FIXME: so here I had to rename the collumns to item_table_id and
-    // badge_table_id because thats what the lib was searching in the database
-    // this may be a bug have to keep an eye on it
+	// FIXME: so here I had to rename the columns to item_table_id and
+	// badge_table_id because thats what the lib was searching in the database
+	// this may be a bug have to keep an eye on it
 	ItemID  uint `gorm:"column:item_table_id;primaryKey"`
 	BadgeID uint `gorm:"column:badge_table_id;primaryKey"`
 
