@@ -54,18 +54,14 @@ func TransactionTypes() []TransactionType {
 }
 
 type Transaction struct {
-	ID uint
-
-	Type   TransactionType
-	Method PaymentMethod
-
-	Credit bool
-
-	Value decimal.Decimal
-	Date  time.Time
-
-	CardID        *uint
-	BankAccountID uint
+	ID            uint            `json:"id"`
+	Type          TransactionType `json:"type"`
+	Method        PaymentMethod   `json:"method"`
+	Credit        bool            `json:"credit"`
+	Value         decimal.Decimal `json:"value"`
+	Date          time.Time       `json:"date"`
+	CardID        *uint           `json:"card_id"`
+	BankAccountID uint            `json:"bank_account_id"`
 }
 
 type TransactionWithBadges struct {

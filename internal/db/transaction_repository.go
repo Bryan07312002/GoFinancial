@@ -2,7 +2,6 @@ package db
 
 import (
 	"financial/internal/models"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -14,7 +13,7 @@ type TransactionRepository interface {
 		paginteOpt PaginateOptions,
 		userID uint,
 	) (PaginateResult[models.Transaction], error)
-	GetRecentTransactions(userID uint) ([]TransactionTable, error)
+	GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error)
 	Delete(id uint) error
 }
 
@@ -87,7 +86,7 @@ func (b *transactionRepository) PaginateFromUserID(
 	panic("")
 }
 
-func (b *transactionRepository) GetRecentTransactions(userID uint) ([]TransactionTable, error) {
+func (b *transactionRepository) GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error) {
 	var transactions []TransactionTable
 
 	// Subquery to get the user's bank account IDs
@@ -107,11 +106,24 @@ func (b *transactionRepository) GetRecentTransactions(userID uint) ([]Transactio
 		return nil, err
 	}
 
-	for i := 0; i < len(transactions); i++ {
+	var transactionsWithBadges []models.TransactionWithBadges
+	for _, transaction := range transactions {
+		transactionWithBadges := models.TransactionWithBadges{
+			Transaction: ToTransaction(transaction),
+		}
 
-		fmt.Printf("%+v\n", transactions[i].Items)
+		for _, badge := range transaction.Items {
+			transactionWithBadges.Badges = append(
+				transactionWithBadges.Badges, models.Badge{
+					Name: badge.Name,
+					ID:   badge.ID,
+				})
+		}
+
+		transactionsWithBadges = append(transactionsWithBadges, transactionWithBadges)
 	}
-	return transactions, nil
+
+	return transactionsWithBadges, nil
 }
 
 func (b *transactionRepository) Delete(id uint) error {

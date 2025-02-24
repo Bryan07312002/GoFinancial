@@ -6,6 +6,7 @@ import (
 	"financial/internal/services"
 
 	"gorm.io/gorm"
+    "encoding/json"
 	"net/http"
 )
 
@@ -23,7 +24,19 @@ func CreateRecentTransactions(con *gorm.DB) http.HandlerFunc {
 		bankAccountRepo := db.NewTransactionRepository(con)
 		service := services.NewRecentTransactions(bankAccountRepo)
 
-		service.Run(userID)
+		result, err := service.Run(userID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			http.Error(
+				w,
+				"Failed to encode response",
+				http.StatusInternalServerError)
+		}
 	}
 }

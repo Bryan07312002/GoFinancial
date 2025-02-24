@@ -2,6 +2,7 @@ package services
 
 import (
 	"financial/internal/db"
+	"financial/internal/models"
 )
 
 type PaginateTransactions struct {
@@ -13,6 +14,6 @@ func NewRecentTransactions(
 	return PaginateTransactions{transactionRepo}
 }
 
-func (p *PaginateTransactions) Run(userId uint) {
-	p.transactionRepo.GetRecentTransactions(userId)
+func (p *PaginateTransactions) Run(userId uint) ([]models.TransactionWithBadges, error) {
+	return p.transactionRepo.GetRecentTransactions(userId)
 }

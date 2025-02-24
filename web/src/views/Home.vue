@@ -69,7 +69,14 @@ import CreateBankAccount from "../components/CreateBankAccount.vue";
 import NewTransaction from "../components/NewTransaction.vue";
 import RecentTransferActivities from "../components/RecentTransferActivities.vue";
 import { BankAccountService, type BankAccount } from "../services/bankAccounts/bankAccounts";
-import { type Transaction, TransactionType, PaymentMethod } from "../services/transactions/transaction";
+import { TransactionService ,type Transaction, type TransactionsWithBadges,TransactionType, PaymentMethod } from "../services/transactions/transaction";
+
+onMounted(async () => {
+    Promise.all([
+        getBankAccounts(),
+        getRecentTransactions(),
+    ])
+});
 
 enum ModalState {
     CreateBankAccount,
@@ -96,10 +103,6 @@ async function handleCreatedBankAccount() {
     getBankAccounts();
 }
 
-onMounted(async () => {
-    getBankAccounts();
-});
-
 function openCreateBankAccountModal() {
     modalState.value.isOpen = true;
     modalState.value.state = ModalState.CreateBankAccount;
@@ -115,39 +118,11 @@ function closeModal() {
 }
 
 const isTransactionsLoading = ref(false);
-const transactions: Ref<Transaction[]> = ref([
-    {
-        id: 1,
-        type: TransactionType.Income,
-        method: PaymentMethod.DebitCard,
-        establishment: "work",
-        credit: false,
-        value: 2000.00,
-        date: new Date(Date.now()),
-        cardId: 1,
-        bankAccountId: 1,
-    },
-    {
-        id: 1,
-        type: TransactionType.Expense,
-        method: PaymentMethod.DebitCard,
-        establishment: "zaffari",
-        credit: false,
-        value: 2000.00,
-        date: new Date(Date.now()),
-        cardId: 1,
-        bankAccountId: 1,
-    },
-    {
-        id: 1,
-        type: TransactionType.Expense,
-        method: PaymentMethod.DebitCard,
-        establishment: "zaffari",
-        credit: false,
-        value: 2000.00,
-        date: new Date(Date.now()),
-        cardId: 1,
-        bankAccountId: 1,
-    },
-]);
+const transactions: Ref<TransactionWithBadges[]> = ref([]);
+
+async function getRecentTransactions() {
+    isTransactionsLoading.value = true;
+    transactions.value = (await TransactionService.getRecent());
+    isTransactionsLoading.value = false;
+}
 </script>
