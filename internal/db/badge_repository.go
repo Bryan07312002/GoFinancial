@@ -19,13 +19,30 @@ type badgeRepository struct {
 	db *gorm.DB
 }
 
+func ToBadgeTable(model models.Badge) BadgeTable {
+	return BadgeTable{
+		ID:    model.ID,
+		Name:  model.Name,
+		Color: model.Color,
+	}
+}
+
+func ToBadge(table BadgeTable) models.Badge {
+	return models.Badge{
+		ID:    table.ID,
+		Name:  table.Name,
+		Color: table.Color,
+	}
+}
+
 func NewBadgeRepository(db *gorm.DB) BadgeRepository {
 	return &badgeRepository{db}
 }
 
 func (b *badgeRepository) Create(badge *models.Badge) (uint, error) {
 	badgeTableInstance := BadgeTable{
-		Name: badge.Name,
+		Name:  badge.Name,
+		Color: badge.Color,
 	}
 
 	if err := b.db.Create(&badgeTableInstance).Error; err != nil {
@@ -58,11 +75,7 @@ func (r *badgeRepository) FindByID(id uint) (models.Badge, error) {
 	}
 
 	// Convert the BadgeTable instance to models.Badge
-	badge := models.Badge{
-		ID:   badgeTableInstance.ID,
-		Name: badgeTableInstance.Name,
-	}
-
+	badge := ToBadge(badgeTableInstance)
 	return badge, nil
 }
 
@@ -78,10 +91,7 @@ func (b *badgeRepository) FindByItem(itemID uint) ([]models.Badge, error) {
 
 	var badges []models.Badge
 	for _, badgeTable := range badgeTables {
-		badges = append(badges, models.Badge{
-			ID:   badgeTable.ID,
-			Name: badgeTable.Name,
-		})
+		badges = append(badges, ToBadge(badgeTable))
 	}
 
 	return badges, nil
@@ -100,10 +110,7 @@ func (b *badgeRepository) FindByTransaction(transactionID uint) ([]models.Badge,
 
 	var badges []models.Badge
 	for _, badgeTable := range badgeTables {
-		badges = append(badges, models.Badge{
-			ID:   badgeTable.ID,
-			Name: badgeTable.Name,
-		})
+		badges = append(badges, ToBadge(badgeTable))
 	}
 
 	return badges, nil
@@ -114,9 +121,7 @@ func (b *badgeRepository) CreateMultiple(badges []models.Badge) ([]uint, error) 
 	var badgeIDs []uint
 
 	for _, badge := range badges {
-		badgeTableInstances = append(badgeTableInstances, BadgeTable{
-			Name: badge.Name,
-		})
+		badgeTableInstances = append(badgeTableInstances, ToBadgeTable(badge))
 	}
 
 	if err := b.db.Create(&badgeTableInstances).Error; err != nil {

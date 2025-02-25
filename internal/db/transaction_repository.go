@@ -3,6 +3,7 @@ package db
 import (
 	"financial/internal/models"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +15,7 @@ type TransactionRepository interface {
 		userID uint,
 	) (PaginateResult[models.Transaction], error)
 	GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error)
+	GetCurrentBalances(userID uint) (decimal.Decimal, decimal.Decimal, error)
 	Delete(id uint) error
 }
 
@@ -33,6 +35,7 @@ func ToTransactionTable(t models.Transaction) TransactionTable {
 		Type:          t.Type.String(),
 		Method:        &method,
 		Credit:        t.Credit,
+		Establishment: t.Establishment,
 		Value:         t.Value,
 		Date:          t.Date,
 		CardID:        t.CardID,
@@ -52,6 +55,7 @@ func ToTransaction(t TransactionTable) models.Transaction {
 		Type:          models.TransactionType(t.Type),
 		Method:        method,
 		Credit:        t.Credit,
+		Establishment: t.Establishment,
 		Value:         t.Value,
 		Date:          t.Date,
 		CardID:        t.CardID,
@@ -83,20 +87,18 @@ func (b *transactionRepository) PaginateFromUserID(
 	paginateOpt PaginateOptions,
 	userID uint,
 ) (PaginateResult[models.Transaction], error) {
-	panic("")
+	panic("not implemented yet")
 }
 
 func (b *transactionRepository) GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error) {
 	var transactions []TransactionTable
 
-	// Subquery to get the user's bank account IDs
 	subquery := b.db.Model(&BankAccountTable{}).Select("id").Where("user_id = ?", userID)
 
-	// Main query to fetch transactions, preload relationships, and apply conditions
 	err := b.db.
 		Preload("BankAccount").
 		Preload("Card").
-		Preload("Items.Badges"). // Preload items and their badges
+		Preload("Items.Badges").
 		Where("bank_account_id IN (?)", subquery).
 		Order("date DESC").
 		Limit(5).
@@ -106,40 +108,89 @@ func (b *transactionRepository) GetRecentTransactions(userID uint) ([]models.Tra
 		return nil, err
 	}
 
-	var transactionsWithBadges []models.TransactionWithBadges
+	transactionsWithBadges := []models.TransactionWithBadges{}
 	for _, transaction := range transactions {
 		transactionWithBadges := models.TransactionWithBadges{
 			Transaction: ToTransaction(transaction),
 		}
 
-		for _, badge := range transaction.Items {
-			transactionWithBadges.Badges = append(
-				transactionWithBadges.Badges, models.Badge{
-					Name: badge.Name,
-					ID:   badge.ID,
-				})
+		for _, item := range transaction.Items {
+			for _, badge := range item.Badges {
+				transactionWithBadges.Badges = append(
+					transactionWithBadges.Badges, models.Badge{
+						Name: badge.Name,
+						ID:   badge.ID,
+					})
+			}
 		}
 
-		transactionsWithBadges = append(transactionsWithBadges, transactionWithBadges)
+		transactionsWithBadges = append(
+			transactionsWithBadges,
+			transactionWithBadges,
+		)
 	}
 
 	return transactionsWithBadges, nil
 }
 
+func (b *transactionRepository) GetCurrentBalances(
+	userID uint) (decimal.Decimal, decimal.Decimal, error) {
+
+	query := `
+        SELECT SUM(
+          CASE
+            WHEN type='income' THEN value
+            ELSE -value
+          END
+        ) as balance
+        FROM transactions
+        LEFT JOIN bank_accounts
+        ON transactions.bank_account_id=bank_accounts.id
+        LEFT JOIN users
+        ON bank_accounts.user_id=users.id
+        WHERE users.id=?
+        AND transactions.credit=false;
+    `
+
+	creditBalance := `
+        SELECT SUM(
+          CASE
+            WHEN type='income' THEN value
+            ELSE -value
+          END
+        ) as balance
+        FROM transactions
+        LEFT JOIN bank_accounts
+        ON transactions.bank_account_id=bank_accounts.id
+        LEFT JOIN users
+        ON bank_accounts.user_id=users.id
+        WHERE users.id=?
+        AND transactions.credit=true;
+    `
+
+	var balance float64
+	if err := b.db.Raw(query, userID).Scan(&balance).Error; err != nil {
+		return decimal.Decimal{}, decimal.Decimal{}, err
+	}
+
+	var credit float64
+	if err := b.db.Raw(creditBalance, userID).Scan(&credit).Error; err != nil {
+		return decimal.Decimal{}, decimal.Decimal{}, err
+	}
+
+	return decimal.NewFromFloat(balance), decimal.NewFromFloat(credit), nil
+}
+
 func (b *transactionRepository) Delete(id uint) error {
-	// Attempt to delete the bank account by ID
 	result := b.db.Delete(&TransactionTable{}, id)
 
-	// Handle database errors (e.g., connection issues)
 	if result.Error != nil {
 		return result.Error
 	}
 
-	// Check if no rows were affected (record not found)
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
 
-	// Successfully deleted
 	return nil
 }

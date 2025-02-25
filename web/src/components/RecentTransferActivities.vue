@@ -23,9 +23,19 @@
                     </div>
                 </div>
 
-                <div v-if="transaction.type == TransactionType.Income" class="text-green-300"> R$ {{ transaction.value
+                <div class="flex flex-col items-end">
+                    <div v-if="transaction.type == TransactionType.Income" class="text-green-300"> R$ {{
+                        transaction.value
                     }} </div>
-                <div v-else class="text-[var(--des)]"> R$ {{ transaction.value }} </div>
+                    <div v-else class="text-[var(--des)]"> R$ {{ transaction.value }} </div>
+
+                    <div class="flex gap-1 max-w-40 overflow-hidden">
+                        <div class="border border-red-600 text-red-600 bg-red-300 text-sm min-w-10 max-w-15 rounded-[var(--radius)] text-center text-ellipsis overflow-hidden text-nowrap"
+                            v-for="badge in transaction.badges">{{ badge.name }}</div>
+                        <div class="border border-red-600 text-red-600 bg-red-300 text-sm min-w-10 max-w-15 rounded-[var(--radius)] text-center text-ellipsis overflow-hidden text-nowrap"
+                            v-for="badge in transaction.badges">{{ badge.name }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </card>
@@ -38,11 +48,11 @@ import ArrowUpIcon from "../assets/ArrowUpIcon.vue";
 import LoadingIcon from '../assets/LoadingIcon.vue';
 import ArrowDownIcon from "../assets/ArrowDownIcon.vue";
 import {
-    type Transaction,
     TransactionType,
+    type TransactionWithBadges,
 } from '../services/transactions/transaction';
 
-defineProps<{ transactions: Transaction[], isLoading?: boolean }>();
+defineProps<{ transactions: TransactionWithBadges[], isLoading?: boolean }>();
 const emits = defineEmits(["openTransaction", "newTransaction"]);
 
 function formatDate(date: Date) {

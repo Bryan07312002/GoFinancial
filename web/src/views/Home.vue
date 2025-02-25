@@ -9,7 +9,8 @@
                         <bank-icon class="w-6 h-6 stroke-primary" />
                     </div>
 
-                    <b class="text-xl">R$ 24562,00</b>
+                    <div class="animate-spin" v-if="isBalanceLoading || balance === null"><loading-icon /></div>
+                    <b v-else class="text-xl">R$ {{ balance.balance + balance.credit }}</b>
                 </card>
 
                 <card class="flex-1 min-w-32 h-28 p-4 flex flex-col justify-between">
@@ -19,7 +20,8 @@
                         <wallet-icon class="w-6 h-6 stroke-primary" />
                     </div>
 
-                    <b class="text-xl text-green-300">R$ 24562,00</b>
+                    <div class="animate-spin" v-if="isBalanceLoading || balance === null"><loading-icon /></div>
+                    <b v-else class="text-xl text-green-300">R$ {{ balance.balance }}</b>
                 </card>
 
                 <card class="flex-1 min-w-32 h-28 p-4 flex flex-col justify-between">
@@ -29,7 +31,8 @@
                         <credit-card-icon class="w-6 h-6 stroke-primary" />
                     </div>
 
-                    <b class="text-xl text-red-300">R$ 24562,00</b>
+                    <div class="animate-spin" v-if="isBalanceLoading || balance === null"><loading-icon /></div>
+                    <b v-else class="text-xl text-red-300">R$ {{ balance.credit }}</b>
                 </card>
             </div>
 
@@ -69,12 +72,18 @@ import CreateBankAccount from "../components/CreateBankAccount.vue";
 import NewTransaction from "../components/NewTransaction.vue";
 import RecentTransferActivities from "../components/RecentTransferActivities.vue";
 import { BankAccountService, type BankAccount } from "../services/bankAccounts/bankAccounts";
-import { TransactionService ,type Transaction, type TransactionsWithBadges,TransactionType, PaymentMethod } from "../services/transactions/transaction";
+import LoadingIcon from "../assets/LoadingIcon.vue";
+import {
+    type Balance,
+    TransactionService,
+    type TransactionWithBadges,
+} from "../services/transactions/transaction";
 
 onMounted(async () => {
     Promise.all([
         getBankAccounts(),
         getRecentTransactions(),
+        getBalance(),
     ])
 });
 
@@ -122,7 +131,16 @@ const transactions: Ref<TransactionWithBadges[]> = ref([]);
 
 async function getRecentTransactions() {
     isTransactionsLoading.value = true;
-    transactions.value = (await TransactionService.getRecent());
+    transactions.value = await TransactionService.getRecent();
     isTransactionsLoading.value = false;
+}
+
+const isBalanceLoading = ref(false);
+const balance: Ref<Balance | null> = ref(null)
+
+async function getBalance() {
+    isBalanceLoading.value = true;
+    balance.value = await TransactionService.getBalance();
+    isBalanceLoading.value = false;
 }
 </script>

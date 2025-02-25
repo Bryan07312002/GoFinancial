@@ -53,6 +53,7 @@ type TransactionTable struct {
 
 	Credit bool `gorm:"not null"`
 
+	Establishment string `gorm:"not null"`
 	// 15 digits, 4 decimal places, Supports values up to $999,999,999,999.9999
 	Value decimal.Decimal `gorm:"type:DECIMAL(19,4);not null"`
 	Date  time.Time       `gorm:"type:DATETIME;not null;default:CURRENT_TIMESTAMP"`
@@ -110,6 +111,7 @@ type BadgeTable struct {
 	ID uint `gorm:"primaryKey;autoIncrement"`
 
 	Name string `gorm:"not null"`
+    Color string `gorm:"not null"`
 
 	Items []ItemTable `gorm:"many2many:item_badge;"`
 }

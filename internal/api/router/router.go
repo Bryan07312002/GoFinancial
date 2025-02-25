@@ -40,6 +40,8 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 		handlers.CreateCreateTransaction(dbCon)).Methods("POST")
 	protected.HandleFunc("/transactions/recent",
 		handlers.CreateRecentTransactions(dbCon)).Methods("GET")
+	protected.HandleFunc("/transactions/balance",
+		handlers.CreateCurrentBalance(dbCon)).Methods("GET")
 	protected.HandleFunc("/transactions/{id}",
 		handlers.CreateTransactionDelete(dbCon)).Methods("DELETE")
 

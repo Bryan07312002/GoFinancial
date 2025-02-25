@@ -16,6 +16,7 @@ type CreateTransaction struct {
 	Type          string          `json:"type"`
 	Value         decimal.Decimal `json:"value"`
 	BankAccountID uint            `json:"bank_account_id"`
+	Establishment string          `json:"establishment"`
 	Date          *string         `json:"date"`
 	CardID        *uint           `json:"card_id"`
 	Credit        *bool           `json:"credit"`
@@ -45,6 +46,7 @@ func CreateCreateTransaction(con *gorm.DB) http.HandlerFunc {
 		if err := service.Run(services.CreateTransaction{
 			Type:          transaction.Type,
 			Value:         transaction.Value,
+			Establishment: transaction.Establishment,
 			BankAccountID: transaction.BankAccountID,
 			Date:          transaction.Date,
 			CardID:        transaction.CardID,

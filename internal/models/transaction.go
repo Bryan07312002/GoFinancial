@@ -57,6 +57,7 @@ type Transaction struct {
 	ID            uint            `json:"id"`
 	Type          TransactionType `json:"type"`
 	Method        PaymentMethod   `json:"method"`
+	Establishment string          `json:"establishment"`
 	Credit        bool            `json:"credit"`
 	Value         decimal.Decimal `json:"value"`
 	Date          time.Time       `json:"date"`
@@ -66,5 +67,5 @@ type Transaction struct {
 
 type TransactionWithBadges struct {
 	Transaction
-	Badges []Badge
+	Badges []Badge `json:"badges"`
 }

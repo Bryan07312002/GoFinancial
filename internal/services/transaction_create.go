@@ -27,6 +27,7 @@ type CreateTransaction struct {
 	Type          string
 	Value         decimal.Decimal
 	BankAccountID uint
+	Establishment string
 
 	Date   *string
 	CardID *uint
@@ -83,6 +84,7 @@ func (c *CreateTransactionService) Run(
 	_, err = c.transactionRepo.Create(&models.Transaction{
 		Type:          models.TransactionType(newTransaction.Type),
 		Method:        method,
+        Establishment: *&newTransaction.Establishment,
 		Value:         newTransaction.Value,
 		BankAccountID: newTransaction.BankAccountID,
 
