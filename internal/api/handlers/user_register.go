@@ -33,7 +33,7 @@ func CreateRegisterUserHandler(con *gorm.DB) http.HandlerFunc {
 			Name:     form.Email,
 			Password: form.Password,
 		}); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			ReturnError(err, w)
 		}
 
 		w.WriteHeader(http.StatusCreated)

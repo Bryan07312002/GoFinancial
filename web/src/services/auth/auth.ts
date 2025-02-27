@@ -21,9 +21,7 @@ export const authService = {
     },
 
     async signUp(credentials: Register): Promise<void> {
-        console.log(credentials)
-        await apiClient.post(`/register`, credentials);
-        return;
+        return apiClient.post(`/register`, credentials);
     },
 
     logout(): void {

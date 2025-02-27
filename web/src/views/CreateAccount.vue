@@ -4,11 +4,12 @@
             <div class="flex flex-col gap-5">
                 <h1 class="text-center text-2xl font-bold">Sign Up.</h1>
 
-                <Input v-model:value="createAccountForm.email" placeholder="Email" :disabled="isLoading" />
-                <Input v-model:value="createAccountForm.password" class="w-full" placeholder="Password"
+                <Input :error="error?.email" v-model:value="createAccountForm.email" placeholder="Email"
                     :disabled="isLoading" />
-                <Input v-model:value="createAccountForm.confirmPassword" class="w-full" placeholder="Confirm password"
-                    :disabled="isLoading" />
+                <Input :error="error?.password" v-model:value="createAccountForm.password" class="w-full"
+                    placeholder="Password" :disabled="isLoading" />
+                <Input :error="error?.confirmPassword" v-model:value="createAccountForm.confirmPassword" class="w-full"
+                    placeholder="Confirm password" :disabled="isLoading" />
 
                 <Button @click="handleSignUp" text="Sign Up" :is-loading="isLoading" />
             </div>
@@ -23,7 +24,7 @@
 <script setup lang="ts">
 import Input from "../components/Input.vue"
 import Button from "../components/Button.vue"
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 import { authService } from "../services/auth/auth";
 
 const emits = defineEmits(["gotoSignIn"]);
@@ -32,6 +33,7 @@ const createAccountForm = ref({
     password: "",
     confirmPassword: "",
 })
+const error: Ref<null | any> = ref(null);
 
 const isLoading = ref(false);
 
@@ -48,12 +50,15 @@ async function handleSignUp() {
             password: createAccountForm.value.password,
         })
 
-        isLoading.value = false;
         emits("gotoSignIn")
     }
-    catch {
-        isLoading.value = false;
+    catch (e) {
+        if (e instanceof Response) {
+            error.value = await e.json();
+        }
     }
+
+    isLoading.value = false;
 }
 
 </script>

@@ -25,7 +25,6 @@ type RegisterUser struct {
 
 func (s *RegisterUserService) Run(input RegisterUser) error {
 	hashedPassword, err := s.hashRepo.Hash(input.Password)
-
 	if err != nil {
 		return err
 	}
@@ -36,7 +35,8 @@ func (s *RegisterUserService) Run(input RegisterUser) error {
 		Password: hashedPassword,
 	}
 
-	s.userRepo.Create(user)
-
+	if _, err := s.userRepo.Create(user); err != nil {
+		return err
+	}
 	return nil
 }

@@ -40,7 +40,7 @@ func CreateLoginHandler(con *gorm.DB, jwtKey string) http.HandlerFunc {
             Password: form.Password,
         })
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+            ReturnError(err, w)
 			return
 		}
 

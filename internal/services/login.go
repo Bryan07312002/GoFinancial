@@ -31,15 +31,19 @@ type LoginForm struct {
 	Password string
 }
 
+var (
+	EmailOrPasswordNotMatchError = errors.New("email or password dont match with any record")
+)
+
 func (l *LoginService) Run(form LoginForm) (sessions.Token, error) {
 	user, err := l.userRepo.FindByName(form.Name)
 	if err != nil {
-		return sessions.Token(""), err
+		return sessions.Token(""), EmailOrPasswordNotMatchError
 	}
 
 	if !l.hashRepo.Compare(form.Password, user.Password) {
 		// TODO: add a proper error return here
-		return sessions.Token(""), errors.New("Name or Password not found")
+		return sessions.Token(""), EmailOrPasswordNotMatchError
 	}
 
 	return l.authRepo.CreateToken(user)

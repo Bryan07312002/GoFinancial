@@ -1,15 +1,14 @@
 package db
 
 import (
-	"time"
-
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserTable struct {
 	ID       uint   `gorm:"primaryKey;autoIncrement"`
-	Name     string `gorm:"not null"`
+	Name     string `gorm:"not null;unique"`
 	Password string `gorm:"not null"`
 }
 
@@ -110,8 +109,8 @@ func (ItemBadgeTable) AddUniqueConstraint(db *gorm.DB) {
 type BadgeTable struct {
 	ID uint `gorm:"primaryKey;autoIncrement"`
 
-	Name string `gorm:"not null"`
-    Color string `gorm:"not null"`
+	Name  string `gorm:"not null"`
+	Color string `gorm:"not null"`
 
 	Items []ItemTable `gorm:"many2many:item_badge;"`
 }
