@@ -1,4 +1,5 @@
 import { useAuthStore } from '../../stores/authentication';
+import router from '../../router';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -13,6 +14,7 @@ const getAuthHeader = () => {
 const handleUnauthorized = () => {
     const authStore = useAuthStore();
     authStore.clearToken();
+    router.replace({ name: "Login" });
 };
 
 const createRequest = async <T>(
