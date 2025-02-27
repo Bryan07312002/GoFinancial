@@ -12,6 +12,7 @@ type BadgeRepository interface {
 	FindByItem(itemID uint) ([]models.Badge, error)
 	FindByTransaction(transactionID uint) ([]models.Badge, error)
 	CreateMultiple(badges []models.Badge) ([]uint, error)
+	GetMostExpansives(userID uint) ([]models.BadgeWithValue, error)
 	Delete(id uint) error
 }
 
@@ -134,6 +135,34 @@ func (b *badgeRepository) CreateMultiple(badges []models.Badge) ([]uint, error) 
 	}
 
 	return badgeIDs, nil
+}
+
+func (b *badgeRepository) GetMostExpansives(userID uint) ([]models.BadgeWithValue, error) {
+	query := `
+    select badges.id, badges.name, badges.color, SUM(
+      case
+               when transactions.type='income' then items.value * items.quantity
+               else -items.value * items.quantity
+        end) as value
+    from badges
+    join item_badge on item_badge.badge_table_id=badges.id
+    join items on item_badge.item_table_id=items.id
+    join transactions on items.transaction_id=transactions.id
+    join bank_accounts on transactions.bank_account_id=bank_accounts.id
+    join users on bank_accounts.user_id=users.id
+    where users.id=?
+    group by badges.name
+    order by value asc
+    limit 5;
+    `
+
+	var badges []models.BadgeWithValue
+	err := b.db.Raw(query, userID).Scan(&badges).Error
+	if err != nil {
+		return []models.BadgeWithValue{}, err
+	}
+
+	return badges[:], nil
 }
 
 func (b *badgeRepository) Delete(id uint) error {

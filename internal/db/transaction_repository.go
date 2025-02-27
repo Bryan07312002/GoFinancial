@@ -137,12 +137,11 @@ func (b *transactionRepository) GetCurrentBalances(
 	userID uint) (decimal.Decimal, decimal.Decimal, error) {
 
 	query := `
-        SELECT SUM(
+        SELECT COALESCE(SUM(
           CASE
             WHEN type='income' THEN value
             ELSE -value
-          END
-        ) as balance
+          END), 0) as balance
         FROM transactions
         LEFT JOIN bank_accounts
         ON transactions.bank_account_id=bank_accounts.id
@@ -153,12 +152,11 @@ func (b *transactionRepository) GetCurrentBalances(
     `
 
 	creditBalance := `
-        SELECT SUM(
+        SELECT COALESCE(SUM(
           CASE
             WHEN type='income' THEN value
             ELSE -value
-          END
-        ) as balance
+          END), 0) as balance
         FROM transactions
         LEFT JOIN bank_accounts
         ON transactions.bank_account_id=bank_accounts.id

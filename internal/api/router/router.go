@@ -50,5 +50,8 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 	protected.HandleFunc("/items/{id}",
 		handlers.CreateDeleteItem(dbCon)).Methods("DELETE")
 
+	protected.HandleFunc("/badges/most-expansive",
+		handlers.CreateMostExpansiveBudgets(dbCon)).Methods("GET")
+
 	return &Router{r}
 }
