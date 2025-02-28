@@ -11,6 +11,10 @@ type BadgeRepository interface {
 	FindByID(id uint) (models.Badge, error)
 	FindByItem(itemID uint) ([]models.Badge, error)
 	FindByTransaction(transactionID uint) ([]models.Badge, error)
+	PaginateFromUserID(
+		paginateOpt PaginateOptions,
+		userID uint,
+	) (PaginateResult[models.Badge], error)
 	CreateMultiple(badges []models.Badge) ([]uint, error)
 	GetMostExpansives(userID uint) ([]models.BadgeWithValue, error)
 	Delete(id uint) error
@@ -115,6 +119,50 @@ func (b *badgeRepository) FindByTransaction(transactionID uint) ([]models.Badge,
 	}
 
 	return badges, nil
+}
+
+func (b *badgeRepository) PaginateFromUserID(
+	paginateOpt PaginateOptions,
+	userID uint,
+) (PaginateResult[models.Badge], error) {
+	var count int64
+	var tableInstances []BadgeTable
+
+	query := b.db.Model(&BadgeTable{}).
+		Where("user_id = ?", userID).
+		Count(&count).
+		Limit(int(paginateOpt.Take)).
+		Offset(int((paginateOpt.Page - 1) * paginateOpt.Take))
+
+	if paginateOpt.SortBy != "" {
+		order := paginateOpt.SortBy
+		if paginateOpt.SortDesc {
+			order += " DESC"
+		} else {
+			order += " ASC"
+		}
+		query = query.Order(order)
+	}
+
+	query.Find(&tableInstances)
+
+	results := make([]models.Badge, len(tableInstances))
+	for i, acc := range tableInstances {
+		results[i] = ToBadge(acc)
+	}
+
+	totalPages := count / int64(paginateOpt.Take)
+	if count%int64(paginateOpt.Take) != 0 {
+		totalPages++
+	}
+
+	return PaginateResult[models.Badge]{
+		Data:        results,
+		Total:       uint64(count),
+		CurrentPage: paginateOpt.Page,
+		PageSize:    paginateOpt.Take,
+		TotalPages:  uint(totalPages),
+	}, nil
 }
 
 func (b *badgeRepository) CreateMultiple(badges []models.Badge) ([]uint, error) {

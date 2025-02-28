@@ -52,6 +52,12 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 
 	protected.HandleFunc("/badges/most-expansive",
 		handlers.CreateMostExpansiveBudgets(dbCon)).Methods("GET")
+	protected.HandleFunc("/badges/{id}",
+		handlers.CreateDeleteBadge(dbCon)).Methods("DELETE")
+	protected.HandleFunc("/badges",
+		handlers.CreateCreateBadge(dbCon)).Methods("POST")
+	protected.HandleFunc("/badges",
+		handlers.CreatePaginateBadge(dbCon)).Methods("GET")
 
 	return &Router{r}
 }
