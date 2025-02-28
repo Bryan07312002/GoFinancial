@@ -43,8 +43,8 @@
                     :is-loading="isTransactionsLoading" :transactions="transactions" class="flex-1" />
             </div>
 
-            <card class="flex-1 h-1/5 flex-grow min-h-[200px]">
-                200
+            <card class="flex-1 h-1/5 flex-grow p-4 min-h-[200px]">
+                <badges-with-values :badges="mostExpansiveBadges"/>
             </card>
         </div>
     </div>
@@ -61,18 +61,20 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, type Ref } from "vue";
 import Card from "../components/Card.vue";
 import Modal from "../components/Modal.vue";
 import BankIcon from "../assets/BankIcon.vue"
-import { ref, onMounted, type Ref } from "vue";
 import WalletIcon from "../assets/WalletIcon.vue"
 import CreditCardIcon from "../assets/CreditCardIcon.vue"
 import BankAccountList from "../components/BankAccountList.vue";
 import CreateBankAccount from "../components/CreateBankAccount.vue";
 import NewTransaction from "../components/NewTransaction.vue";
+import LoadingIcon from "../assets/LoadingIcon.vue";
 import RecentTransferActivities from "../components/RecentTransferActivities.vue";
 import { BankAccountService, type BankAccount } from "../services/bankAccounts/bankAccounts";
-import LoadingIcon from "../assets/LoadingIcon.vue";
+import { BadgeService, type BadgeWithValue } from "../services/badges/badges";
+import BadgesWithValues from "../components/BadgesWithValues.vue";
 import {
     type Balance,
     TransactionService,
@@ -81,9 +83,10 @@ import {
 
 onMounted(async () => {
     Promise.all([
+        getBalance(),
         getBankAccounts(),
         getRecentTransactions(),
-        getBalance(),
+        getMostExpansiveBadges(),
     ])
 });
 
@@ -142,5 +145,13 @@ async function getBalance() {
     isBalanceLoading.value = true;
     balance.value = await TransactionService.getBalance();
     isBalanceLoading.value = false;
+}
+
+const isMostExpansiveBadgeLoading = ref(false);
+const mostExpansiveBadges: Ref<BadgeWithValue[]> = ref([]);
+async function getMostExpansiveBadges() {
+    isMostExpansiveBadgeLoading.value = true;
+    mostExpansiveBadges.value = await BadgeService.getMostExpansive();
+    isMostExpansiveBadgeLoading.value = false;
 }
 </script>
