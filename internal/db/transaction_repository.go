@@ -10,6 +10,7 @@ import (
 type TransactionRepository interface {
 	Create(transaction *models.Transaction) (uint, error)
 	FindByID(id uint) (models.Transaction, error)
+	FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error)
 	PaginateFromUserID(
 		paginteOpt PaginateOptions,
 		userID uint,
@@ -81,6 +82,48 @@ func (c *transactionRepository) FindByID(id uint) (models.Transaction, error) {
 
 	transaction := ToTransaction(transactionTableInstance)
 	return transaction, nil
+}
+
+func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error) {
+	var transaction TransactionTable
+	err := c.db.
+		Joins("JOIN bank_accounts ON transactions.bank_account_id = bank_accounts.id").
+		Where("transactions.id = ? AND bank_accounts.user_id = ?", id, userID).
+		Preload("Items.Badges").
+		Preload("BankAccount").
+		Preload("Card").
+		First(&transaction).Error
+
+	if err != nil {
+		return models.TransactionWithDetails{}, err
+	}
+
+	var items []models.ItemWithBadges
+	for _, item := range transaction.Items {
+		var badges []models.Badge
+		for _, badge := range item.Badges {
+			badges = append(badges, ToBadge(badge))
+		}
+
+		items = append(items, models.ItemWithBadges{
+			Item: models.Item{
+				ID:            item.ID,
+				Name:          item.Name,
+				TransactionID: item.TransactionID,
+				Value:         item.Value,
+				Quantity:      item.Quantity,
+			},
+			Badges: badges,
+		})
+	}
+
+	transactionWithDetails := models.TransactionWithDetails{
+		Transaction: ToTransaction(transaction),
+		Items:       items,
+		BankAccount: ToBankAccount(transaction.BankAccount),
+	}
+
+	return transactionWithDetails, nil
 }
 
 func (b *transactionRepository) PaginateFromUserID(
