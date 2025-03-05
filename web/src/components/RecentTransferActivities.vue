@@ -9,8 +9,8 @@
             <loading-icon />
         </div>
 
-        <div v-else class="flex flex-col gap-4 h-full">
-            <div @click="emits('openTransaction', transaction.id)" v-for="transaction in transactions"
+        <div v-else class="flex flex-col shadow-[var(--neutral-800)] shadow-lg rounded-md overflow-hidden h-full">
+            <div @click="emits('openTransaction', transaction.id)" v-for="transaction,i in transactions" :class="i%2==0? '':'bg-[var(--neutral-800)]'"
                 class="cursor-pointer flex justify-between p-4 hover:bg-[var(--accent)] rounded-[var(--radius)]">
                 <div class="flex gap-4 items-center">
 

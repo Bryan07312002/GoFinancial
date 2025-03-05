@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] text-[var(--card-foreground)]">
+    <div class="bg-[var(--secondary-1)] rounded-md text-[var(--neutral-100)]">
         <slot />
     </div>
 </template>

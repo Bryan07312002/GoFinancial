@@ -1,5 +1,5 @@
 <template>
-    <div class="dark min-w-screen min-h-screen bg-[var(--neutral-800)]">
+    <div class="dark min-h-screen bg-[var(--neutral-800)]">
         <router-view />
     </div>
 </template>

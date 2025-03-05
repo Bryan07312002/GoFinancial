@@ -1,5 +1,5 @@
 <template>
-    <button class="py-2 px-3 rounded-[var(--radius)] hover:brightness-50 font-md cursor-pointer" :class="buttonColorType()">
+    <button class="py-2 px-3 rounded-lg hover:brightness-50 font-md cursor-pointer" :class="buttonColorType()">
         <div v-if="!isLoading">
             {{ text }}
         </div>

@@ -1,5 +1,5 @@
 <template>
-    <div class="p-6 h-screen flex flex-col gap-2 w-72 shadow-black shadow-lg text-[var(--neutral-100)]">
+    <div class="p-6 min-w-72 h-screen flex flex-col gap-2 w-72 shadow-black shadow-lg text-[var(--neutral-100)]">
         <div class="text-xl font-bold flex gap-4">
             <wallet-icon class="stroke-primary" />
             <div>Financial</div>

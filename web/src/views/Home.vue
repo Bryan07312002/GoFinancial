@@ -1,6 +1,37 @@
 <template>
-    <div>
+    <div class="flex max-w-screen">
         <sidebar />
+        <div class="max-w-[1440px] mx-auto flex flex-col gap-6 w-full p-6">
+            <div>
+                <div class="flex gap-6 h-38 w-full">
+                    <card class="flex-1 flex flex-col justify-between p-6">
+                        <div class="flex gap-6 text-[var(--neutral-400)]">
+                            <bank-icon />
+                            <div>Total Network</div>
+                        </div>
+                        <div class="text-4xl">R$ {{ balance?.balance + balance?.credit }}</div>
+                    </card>
+                    <card class="flex-1 flex flex-col justify-between p-6">
+                        <div class="flex gap-6 text-[var(--neutral-400)]">
+                            <wallet-icon />
+                            <div>Balance</div>
+                        </div>
+                        <div class="text-4xl">R$ {{ balance?.balance }}</div>
+                    </card>
+                    <card class="flex-1 flex flex-col justify-between p-6">
+                        <div class="flex gap-6 text-[var(--neutral-400)]">
+                            <credit-card-icon />
+                            <div>Debth</div>
+                        </div>
+                        <div class="text-4xl">R$ {{ balance?.credit }}</div>
+                    </card>
+                </div>
+            </div>
+            <card class="w-full p-6 min-h-1/3 flex gap-6">
+                <recent-transfer-activities class="w-1/2" :transactions="transactions" />
+                <recent-transfer-activities class="w-1/2" :transactions="transactions" />
+            </card>
+        </div>
     </div>
 </template>
 
@@ -29,12 +60,12 @@ import {
 } from "../services/transactions/transaction";
 
 onMounted(async () => {
-    //Promise.all([
-    //    getBalance(),
-    //    getBankAccounts(),
-    //    getRecentTransactions(),
-    //    getMostExpansiveBadges(),
-    //])
+    Promise.all([
+        getBalance(),
+        //    getBankAccounts(),
+        getRecentTransactions(),
+        //    getMostExpansiveBadges(),
+    ])
 });
 
 enum ModalState {
