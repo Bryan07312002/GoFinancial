@@ -10,7 +10,7 @@
         </div>
 
         <div v-else class="flex flex-col gap-4 h-full">
-            <div @click="emits('openTransaction', transaction)" v-for="transaction in transactions"
+            <div @click="emits('openTransaction', transaction.id)" v-for="transaction in transactions"
                 class="cursor-pointer flex justify-between p-4 hover:bg-[var(--accent)] rounded-[var(--radius)]">
                 <div class="flex gap-4 items-center">
 
@@ -26,12 +26,10 @@
                 <div class="flex flex-col items-end">
                     <div v-if="transaction.type == TransactionType.Income" class="text-green-300"> R$ {{
                         transaction.value
-                    }} </div>
+                        }} </div>
                     <div v-else class="text-[var(--des)]"> R$ {{ transaction.value }} </div>
 
                     <div class="flex gap-1 max-w-40 overflow-hidden">
-                        <div class="border border-red-600 text-red-600 bg-red-300 text-sm min-w-10 max-w-15 rounded-[var(--radius)] text-center text-ellipsis overflow-hidden text-nowrap"
-                            v-for="badge in transaction.badges">{{ badge.name }}</div>
                         <div class="border border-red-600 text-red-600 bg-red-300 text-sm min-w-10 max-w-15 rounded-[var(--radius)] text-center text-ellipsis overflow-hidden text-nowrap"
                             v-for="badge in transaction.badges">{{ badge.name }}</div>
                     </div>

@@ -114,11 +114,11 @@ func (c *transactionRepository) FindByID(id uint) (models.Transaction, error) {
 func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error) {
 	var transaction TransactionTable
 	err := c.db.
-		Joins("JOIN bank_accounts ON transactions.bank_account_id = bank_accounts.id").
-		Where("transactions.id = ? AND bank_accounts.user_id = ?", id, userID).
 		Preload("Items.Badges").
 		Preload("BankAccount").
 		Preload("Card").
+		Joins("JOIN bank_accounts ON transactions.bank_account_id = bank_accounts.id").
+		Where("transactions.id = ? AND bank_accounts.user_id = ?", id, userID).
 		First(&transaction).Error
 
 	if err != nil {

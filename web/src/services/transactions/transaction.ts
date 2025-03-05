@@ -1,4 +1,6 @@
 import apiClient from "../api/client";
+import type { BankAccount } from "../bankAccounts/bankAccounts";
+import type { Item, ItemWithBadges } from "../items";
 
 export enum PaymentMethod {
     CreditCard = "credit_card",
@@ -22,6 +24,11 @@ export type Transaction = {
     date: Date;
     cardId: number | null;
     bankAccountId: number;
+}
+
+export type TransactionWithDetails = Transaction & {
+    bank_account: BankAccount;
+    items: ItemWithBadges[];
 }
 
 export type Badge = {
@@ -71,15 +78,26 @@ export const TransactionService = {
     },
 
     getRecent: async (): Promise<TransactionWithBadges[]> => {
-        const result = await apiClient.get<RecentResponse[]>("/transactions/recent");
+        const result = await apiClient
+            .get<RecentResponse[]>("/transactions/recent");
+
         return result.map(el => ({
             ...el,
             date: parseDate(el.date)
         }))
     },
 
+    getById: async (id: number): Promise<TransactionWithDetails> => {
+        return apiClient.get(`/transactions/${id}`).then((res: any) => ({
+            ...res,
+            date: parseDate(res.date)
+        }))
+    },
+
     getBalance: async (): Promise<Balance> => {
-        const res = await apiClient.get<{ balance: string, credit: string }>("/transactions/balance");
+        const res = await apiClient
+            .get<{ balance: string, credit: string }>("/transactions/balance");
+
         return {
             balance: parseFloat(res.balance),
             credit: parseFloat(res.credit),
@@ -94,7 +112,6 @@ function parseDate(isoString: string) {
 }
 
 function formatDate(date: Date): string {
-    // Date components
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const day = String(date.getDate()).padStart(2, '0');
@@ -103,10 +120,8 @@ function formatDate(date: Date): string {
     const seconds = String(date.getSeconds()).padStart(2, '0');
     const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
 
-    // Fractional seconds (milliseconds + 6 zeros to simulate nanoseconds)
     const fractionalSeconds = `${milliseconds}000000`;
 
-    // Timezone offset (±HHMM)
     const offsetMinutes = date.getTimezoneOffset();
     const sign = offsetMinutes > 0 ? '-' : '+'; // Invert sign for correct timezone representation
     const absOffset = Math.abs(offsetMinutes);

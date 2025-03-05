@@ -1,11 +1,9 @@
 <template>
-    <BackgroundVue />
-    <div class="dark text-[var(--foreground)]">
+    <div class="dark min-w-screen min-h-screen bg-[var(--neutral-800)]">
         <router-view />
     </div>
 </template>
 
 <script setup lang="ts">
-import BackgroundVue from "./components/Background.vue"
 
 </script>
