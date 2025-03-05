@@ -34,7 +34,7 @@ func CreateCardDelete(con *gorm.DB) http.HandlerFunc {
 
 		if err := service.Run(uint(cardID), userID); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-            return
+			return
 		}
 
 		w.WriteHeader(http.StatusNoContent)

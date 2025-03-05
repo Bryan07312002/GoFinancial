@@ -1,7 +1,7 @@
 package hash
 
 import (
-    "golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func HashPassword(password string, cost int) (string, error) {

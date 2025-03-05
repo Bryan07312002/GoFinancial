@@ -73,6 +73,6 @@ type TransactionWithBadges struct {
 type TransactionWithDetails struct {
 	Transaction
 	Items       []ItemWithBadges `json:"items"`
-	BankAccount BankAccount    `json:"bank_account"`
-	Card        *Card          `json:"card"`
+	BankAccount BankAccount      `json:"bank_account"`
+	Card        *Card            `json:"card"`
 }

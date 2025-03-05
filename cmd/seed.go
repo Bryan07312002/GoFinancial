@@ -7,5 +7,5 @@ func main() {
 		"DATABASE_PATH": "./db.db",
 	}
 
-    db.Seed(cfg)
+	db.Seed(cfg)
 }

@@ -19,9 +19,9 @@ func NewDeleteCard(
 
 func (d *DeleteCard) Run(id, userId uint) error {
 	bankAccountRepo, err := d.bankAccountRepo.FindBankAccountByCardID(id)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	if bankAccountRepo.UserID != userId {
 		return errors.New("cant delete card from another user")

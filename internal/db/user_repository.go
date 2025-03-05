@@ -48,9 +48,9 @@ func (r *userRepository) Create(user models.User) (uint, error) {
 	userInstance := ToUserTable(user)
 	err := r.conn.Create(&userInstance).Error
 	if err != nil {
-        if err.Error() == "UNIQUE constraint failed: users.name" {
-            return 0, &ErrDuplicateEmail
-        }
+		if err.Error() == "UNIQUE constraint failed: users.name" {
+			return 0, &ErrDuplicateEmail
+		}
 
 		return 0, err
 	}

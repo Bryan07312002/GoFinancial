@@ -5,8 +5,8 @@ import (
 	"financial/internal/db"
 	"financial/internal/services"
 
+	"encoding/json"
 	"gorm.io/gorm"
-    "encoding/json"
 	"net/http"
 )
 
@@ -40,4 +40,3 @@ func CreateMostExpansiveBudgets(con *gorm.DB) http.HandlerFunc {
 		}
 	}
 }
-

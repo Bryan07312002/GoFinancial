@@ -27,7 +27,7 @@ func ToItemTable(item models.Item) ItemTable {
 }
 
 type ItemRepository interface {
-    CreateMultiple(items []models.Item) ([]uint, error)
+	CreateMultiple(items []models.Item) ([]uint, error)
 	FindByID(ID uint) (models.Item, error)
 	Delete(id uint) error
 }

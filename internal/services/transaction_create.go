@@ -84,7 +84,7 @@ func (c *CreateTransactionService) Run(
 	_, err = c.transactionRepo.Create(&models.Transaction{
 		Type:          models.TransactionType(newTransaction.Type),
 		Method:        method,
-        Establishment: *&newTransaction.Establishment,
+		Establishment: *&newTransaction.Establishment,
 		Value:         newTransaction.Value,
 		BankAccountID: newTransaction.BankAccountID,
 

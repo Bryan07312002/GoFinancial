@@ -30,7 +30,7 @@ func generateTestUserRepository(t *testing.T) db.UserRepository {
 
 	// Migrate the schema for testing
 	err = conn.AutoMigrate(
-		&db.UserTable{},  // Make sure to include all tables in migration
+		&db.UserTable{}, // Make sure to include all tables in migration
 	)
 
 	if err != nil {
@@ -109,4 +109,3 @@ func TestUserRepository(t *testing.T) {
 		}
 	})
 }
-

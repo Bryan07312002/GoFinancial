@@ -44,6 +44,33 @@ func ToTransactionTable(t models.Transaction) TransactionTable {
 	}
 }
 
+func toTransactionWithDetails(t TransactionTable) models.TransactionWithDetails {
+	var items []models.ItemWithBadges
+	for _, item := range t.Items {
+		var badges []models.Badge
+		for _, badge := range item.Badges {
+			badges = append(badges, ToBadge(badge))
+		}
+
+		items = append(items, models.ItemWithBadges{
+			Item: models.Item{
+				ID:            item.ID,
+				Name:          item.Name,
+				TransactionID: item.TransactionID,
+				Value:         item.Value,
+				Quantity:      item.Quantity,
+			},
+			Badges: badges,
+		})
+	}
+
+	return models.TransactionWithDetails{
+		Transaction: ToTransaction(t),
+		Items:       items,
+		BankAccount: ToBankAccount(t.BankAccount),
+	}
+}
+
 func ToTransaction(t TransactionTable) models.Transaction {
 	var method models.PaymentMethod
 	if t.Method != nil {
@@ -98,32 +125,7 @@ func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.Tra
 		return models.TransactionWithDetails{}, err
 	}
 
-	var items []models.ItemWithBadges
-	for _, item := range transaction.Items {
-		var badges []models.Badge
-		for _, badge := range item.Badges {
-			badges = append(badges, ToBadge(badge))
-		}
-
-		items = append(items, models.ItemWithBadges{
-			Item: models.Item{
-				ID:            item.ID,
-				Name:          item.Name,
-				TransactionID: item.TransactionID,
-				Value:         item.Value,
-				Quantity:      item.Quantity,
-			},
-			Badges: badges,
-		})
-	}
-
-	transactionWithDetails := models.TransactionWithDetails{
-		Transaction: ToTransaction(transaction),
-		Items:       items,
-		BankAccount: ToBankAccount(transaction.BankAccount),
-	}
-
-	return transactionWithDetails, nil
+	return toTransactionWithDetails(transaction), nil
 }
 
 func (b *transactionRepository) PaginateFromUserID(

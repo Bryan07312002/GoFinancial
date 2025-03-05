@@ -57,7 +57,7 @@ func createTransactions(
 			Type:          models.Income,
 			Method:        models.Other,
 			Credit:        false,
-            Establishment: "company one",
+			Establishment: "company one",
 			Value:         decimal.NewFromInt(10.000),
 			Date:          time.Now(),
 			CardID:        nil,
@@ -67,7 +67,7 @@ func createTransactions(
 			Type:          models.Expense,
 			Method:        models.DebitCard,
 			Credit:        false,
-            Establishment: "store two",
+			Establishment: "store two",
 			Value:         decimal.NewFromInt(10.000),
 			Date:          time.Now(),
 			CardID:        nil,
@@ -76,7 +76,7 @@ func createTransactions(
 		{
 			Type:          models.Expense,
 			Method:        models.CreditCard,
-            Establishment: "market",
+			Establishment: "market",
 			Credit:        true,
 			Value:         decimal.NewFromInt(5.000),
 			Date:          time.Now(),
@@ -128,12 +128,12 @@ func createItems(transaction models.Transaction, conn *gorm.DB) []models.Item {
 func createBadges(item models.Item, conn *gorm.DB) []models.Badge {
 	badges := [2]models.Badge{
 		{
-			Name: "badge one",
-            Color: "136 60 60",
+			Name:  "badge one",
+			Color: "136 60 60",
 		},
 		{
-			Name: "badge two",
-            Color: "270 60 60",
+			Name:  "badge two",
+			Color: "270 60 60",
 		}}
 
 	badgeRepo := NewBadgeRepository(conn)

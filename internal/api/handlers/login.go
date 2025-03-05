@@ -36,11 +36,11 @@ func CreateLoginHandler(con *gorm.DB, jwtKey string) http.HandlerFunc {
 		service := services.NewLoginService(userRepo, &sessionsRepo, hashRepo)
 
 		token, err := service.Run(services.LoginForm{
-            Name: form.Email,
-            Password: form.Password,
-        })
+			Name:     form.Email,
+			Password: form.Password,
+		})
 		if err != nil {
-            ReturnError(err, w)
+			ReturnError(err, w)
 			return
 		}
 
