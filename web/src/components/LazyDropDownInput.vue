@@ -5,18 +5,18 @@
         <!-- Dropdown trigger -->
         <div class="relative" :class="disabled ? 'brightness-50' : ''">
             <button type="button" @click="toggleDropdown" :disabled="disabled"
-                class="w-full flex justify-between items-center border border-[var(--border)] rounded-[var(--radius)] p-2 text-left focus:border-[var(--primary)] focus:outline-none disabled:opacity-50">
+                class="w-full flex justify-between items-center border border-[var(--secondary-2)] rounded-md p-2 text-left focus:border-[var(--primary)] focus:outline-none disabled:opacity-50">
                 <span v-if="selectedOption">{{ selectedOption.name }}</span>
                 <span v-else class="text-gray-400">{{ placeholder }}</span>
-                <span class="transform transition-transform" :class="{ 'rotate-180': isOpen }">▼</span>
+                <span class="transform transition-transform text-[var(--secondary-2)]" :class="{ 'rotate-180': isOpen }">▼</span>
             </button>
 
             <!-- Dropdown content -->
             <div v-show="isOpen"
-                class="absolute bg-[var(--background)] z-10 w-full mt-1 border border-[var(--border)] rounded-[var(--radius)] shadow-lg max-h-60 overflow-auto">
+                class="absolute bg-[var(--secondary-1)] z-10 w-full mt-1 border border-[var(--secondary-2)] rounded-md shadow-lg max-h-60 overflow-auto">
                 <!-- Search input -->
                 <input v-model="searchQuery" @input="handleSearch" placeholder="Search..."
-                    class="p-2 border-b border-[var(--border)] w-full focus:outline-none" />
+                    class="p-2 border-b border-[var(--secondary-2)] w-full focus:outline-none" />
 
                 <!-- Loading state -->
                 <div v-if="loading" class="p-2 text-gray-500">Loading...</div>

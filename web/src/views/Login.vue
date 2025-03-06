@@ -1,5 +1,5 @@
 <template>
-    <div class="text-[var(--foreground)] flex justify-center items-center dark">
+    <div class="text-[var(--neutral-100)] flex justify-center items-center dark">
         <div class="p-4">
             <div class="flex flex-col gap-5">
                 <h1 class="text-center text-2xl font-bold">Sign In.</h1>
@@ -10,9 +10,9 @@
 
                 <Button @click="handleSignIn" :is-loading="isLoading" text="Sign In" />
             </div>
-            <div class="mt-2">
+            <div class="mt-2 text-[var(--neutral-400)]">
                 Don´t have an account?
-                <b @click="emits('gotoSignUp')" class="ml-2  underline cursor-pointer">
+                <b @click="emits('gotoSignUp')" class="ml-2 text-[var(--neutral-100)] underline cursor-pointer">
                     Sign Up
                 </b>.
             </div>

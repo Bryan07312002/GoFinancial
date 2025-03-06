@@ -8,54 +8,66 @@
                         <coin-icon />
                         <div>Total Network</div>
                     </div>
-                    <div class="text-4xl">R$ {{ balance?.balance + balance?.credit }}</div>
+                    <div class="text-3xl">R$ {{ balance?.balance + balance?.credit }}</div>
                 </card>
                 <card class="flex-1 flex min-w-[300px] gap-6 flex-col justify-between p-6">
                     <div class="flex gap-6 text-[var(--neutral-400)]">
                         <wallet-icon />
                         <div>Balance</div>
                     </div>
-                    <div class="text-4xl">R$ {{ balance?.balance }}</div>
+                    <div class="text-3xl">R$ {{ balance?.balance }}</div>
                 </card>
-                <card class="flex-1 flex min-w-[300px] flex-col gap-6 justify-between p-6">
+                <card class="flex-1 flex min-w-[200px] flex-col gap-6 justify-between p-6">
                     <div class="flex gap-6 text-[var(--neutral-400)]">
                         <credit-card-icon />
                         <div>Debt</div>
                     </div>
-                    <div class="text-4xl">R$ {{ balance?.credit }}</div>
+                    <div class="text-3xl">R$ {{ balance?.credit }}</div>
                 </card>
             </div>
 
             <card class="w-full p-6  flex flex-wrap flex-5 gap-6">
                 <most-expansive-badges class="flex-1 min-h-[300px]" :badges="mostExpansiveBadges" />
-                <recent-transfer-activities class="flex-1 min-h-[300px]" :transactions="transactions" />
+                <recent-transfer-activities @new-transaction="handleOpenNewTransactionModal"
+                    @open-transaction="handleOpenTransactionWithDetails($event)" class="flex-1 min-h-[300px]"
+                    :transactions="transactions" />
             </card>
         </div>
     </div>
+    <modal v-if="modalState.isOpen">
+        <card class="p-6">
+            <show-transaction-with-details @close="closeModal"
+                v-if="modalState.state === ModalState.ShowTransactionWithDetails" :transaction="transactionWithDetails"
+                :is-loading="isShowTransactionLoading" />
+
+            <new-transaction  @close="closeModal" @cancel="closeModal" should-have-close-button v-if="modalState.state === ModalState.NewTransaction" />
+        </card>
+    </modal>
 </template>
 
 <script setup lang="ts">
-import Sidebar from "../components/Sidebar.vue";
-import { ref, onMounted, type Ref } from "vue";
+import Modal from "../components/Modal.vue";
 import Card from "../components/Card.vue";
-import MostExpansiveBadges from "../components/MostExpansiveBadges.vue";
+import CoinIcon from "../assets/CoinIcon.vue";
+import ShowTransactionWithDetails from "../components/ShowTransactionWithDetails.vue";
+import { ref, onMounted, type Ref } from "vue";
+import Sidebar from "../components/Sidebar.vue";
 import WalletIcon from "../assets/WalletIcon.vue"
 import CreditCardIcon from "../assets/CreditCardIcon.vue"
-import RecentTransferActivities from "../components/RecentTransferActivities.vue";
-import { BankAccountService, type BankAccount } from "../services/bankAccounts/bankAccounts";
+import MostExpansiveBadges from "../components/MostExpansiveBadges.vue";
 import { BadgeService, type BadgeWithValue } from "../services/badges/badges";
+import RecentTransferActivities from "../components/RecentTransferActivities.vue";
+import NewTransaction from "../components/NewTransaction.vue";
 import {
     type Balance,
     TransactionService,
     type TransactionWithBadges,
     type TransactionWithDetails,
 } from "../services/transactions/transaction";
-import CoinIcon from "../assets/CoinIcon.vue";
 
 onMounted(async () => {
     Promise.all([
-        //getBalance(),
-        //    getBankAccounts(),
+        getBalance(),
         getRecentTransactions(),
         getMostExpansiveBadges(),
     ])
@@ -63,35 +75,15 @@ onMounted(async () => {
 
 enum ModalState {
     NewTransaction,
-    CreateBankAccount,
     ShowTransactionWithDetails,
 }
 
 const modalState = ref({
     isOpen: false,
-    state: ModalState.CreateBankAccount,
+    state: ModalState.NewTransaction,
 })
 
-const isBankAccountsLoading = ref(true);
-const bankAccounts: Ref<BankAccount[], BankAccount[]> = ref([]);
-
-async function getBankAccounts() {
-    isBankAccountsLoading.value = true;
-    bankAccounts.value = (await BankAccountService.getPaginate(0, 0)).data;
-    isBankAccountsLoading.value = false;
-}
-
-async function handleCreatedBankAccount() {
-    closeModal();
-    getBankAccounts();
-}
-
-function openCreateBankAccountModal() {
-    modalState.value.isOpen = true;
-    modalState.value.state = ModalState.CreateBankAccount;
-}
-
-function openNewTransactionModal() {
+function handleOpenNewTransactionModal() {
     modalState.value.isOpen = true;
     modalState.value.state = ModalState.NewTransaction;
 }
@@ -144,3 +136,9 @@ function handleOpenTransactionWithDetails(id: number) {
     return getTransactionWithDetails(id);
 }
 </script>
+
+<style>
+.apexcharts-toolbar {
+    display: none !important;
+}
+</style>

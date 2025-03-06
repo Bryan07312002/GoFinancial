@@ -3,7 +3,7 @@
         <label class="pb-1" v-if="label">{{ label }}</label>
         <input :value="displayValue" @input="onInput" @focus="onFocus" @blur="onBlur" :disabled="disabled"
             :placeholder="placeholder" :class="disabled ? 'brightness-50' : ''"
-            class="border border-[var(--border)] rounded-[var(--radius)] focus:border-[var(--primary)] focus:outline-none p-2">
+            class="border border-[var(--secondary-2)] rounded-md focus:border-[var(--primary)] focus:outline-none p-2">
     </div>
 </template>
 

@@ -15,7 +15,7 @@
 }
 
 .button-secondary {
-    background: var(--secondary);
+    background: var(--secondary-2);
 }
 </style>
 

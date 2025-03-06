@@ -2,11 +2,11 @@
     <div class="flex flex-col gap-4">
         <div class="flex gap-4 font-bold ">
             <div class="flex-1">
-                <arrow-left-right class=" stroke-primary" />
+                <arrow-left-right />
             </div>
             <div class="flex-8 text-center">New Transaction</div>
             <div v-if="shouldHaveCloseButton" class="flex-1 text-xl hover:text-red-300 cursor-pointer text-end"
-                @click="emits('closeButton')">
+                @click="emits('close')">
                 X
             </div>
         </div>
@@ -38,7 +38,7 @@
 
         <div class="flex gap-4 justify-between w-full">
             <Button :is-loading="isLoading" bottom-color-type="secondary" class="flex-1" text="Cancel"
-                @click="emits('cancelButton')" />
+                @click="emits('cancel')" />
             <Button :is-loading="isLoading" class="flex-1" text="Save" @click="handleSave" />
         </div>
     </div>
@@ -65,7 +65,7 @@ import { BankAccountService, type BankAccount } from '../services/bankAccounts/b
 
 defineProps<{ shouldHaveCloseButton?: boolean }>();
 
-const emits = defineEmits(['closeButton', 'cancelButton', 'created']);
+const emits = defineEmits(['close', 'cancel', 'created']);
 const isLoading = ref(false);
 const bankAccounts: Ref<BankAccount[]> = ref([]);
 const bankAccountsOptions = computed(() =>

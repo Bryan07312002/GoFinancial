@@ -4,7 +4,7 @@
         <error v-if="error"> {{ error }} </error>
         <input :value="value" @input="$emit('update:value', ($event.target as any).value)"
             :disabled="disabled != undefined && disabled" :placeholder="placeholder" :readonly="readonly"
-            class="border border-[var(--border)] rounded-[var(--radius)] focus:border-[var(--primary)] focus:outline-none p-2">
+            class="border border-[var(--secondary-4)] bg-[var(--secondary-1)] rounded-md focus:border-[var(--primary)] focus:outline-none p-2">
     </div>
 </template>
 

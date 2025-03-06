@@ -1,11 +1,11 @@
 <template>
     <div>
-        <div class="text-[var(--muted-foreground)] mb-2">{{ label }}:</div>
+        <div class="mb-2">{{ label }}:</div>
         <div class="flex gap-4" :class="disabled ? 'brightness-50' : ''">
             <div v-for="option in options" @click="onClick(option.value)" :class="value === option.value ?
-                'bg-[var(--primary)] color--[var(--primary-foreground)]' :
-                'bg-[var(--muted)] color--[var(--muted-foreground)]'"
-                class="flex-1 cursor-pointer text-center rounded-[var(--radius)] py-2 px-3">{{
+                'bg-[var(--primary)]' :
+                ''"
+                class="flex-1 border border-[var(--secondary-4)] flex justify-center items-center cursor-pointer text-center rounded-md py-2 px-3">{{
                     option.name }}</div>
         </div>
     </div>

@@ -2,18 +2,18 @@
     <div class="relative w-full">
         <!-- Date picker -->
         <div v-if="isOpen"
-            class="absolute bg-[var(--card)] left-0 bottom-full mb-2 border border-[var(--border)] rounded-[var(--radius)] p-4 z-10">
+            class="absolute bg-[var(--secondary-1)] left-0 bottom-full mb-2 border border-[var(--secondary-2)] rounded-md p-4 z-10">
             <!-- Header -->
             <div class="flex items-center justify-between mb-4">
                 <button @click="previousMonth"
-                    class="p-2 cursor-pointer hover:bg-[var(--muted)] hover:color-[var(--muted-foreground)] rounded-[var(--radius)]">
+                    class="p-2 cursor-pointer hover:bg-[var(--neutral-600)] hover:color-[var(--neutral-100)] rounded-md">
                     ←
                 </button>
                 <div class="font-semibold">
                     {{ currentMonth }} {{ currentYear }}
                 </div>
                 <button @click="nextMonth"
-                    class="p-2 cursor-pointer hover:bg-[var(--muted)] hover:color-[var(--muted-foreground)] rounded-[var(--radius)]">
+                    class="p-2 cursor-pointer hover:bg-[var(--neutral-600)] hover:color-[var(--neutral-100)] rounded-md">
                     →
                 </button>
             </div>
@@ -28,9 +28,9 @@
 
                 <!-- Calendar days -->
                 <button v-for="(day, index) in calendarDays" :key="index" @click="selectDate(day.date)"
-                    class="w-7 h-7 cursor-pointer text-sm rounded-[var(--radius)] hover:bg-[var(--muted)] hover:color-[var(--muted-foreground)]"
+                    class="w-7 h-7 cursor-pointer text-sm rounded-md hover:bg-[var(--neutral-600)]"
                     :class="{
-                        'text-[var(--muted)]': !day.isCurrentMonth,
+                        'text-[var(--neutral-600)]': !day.isCurrentMonth,
                         'bg-[var(--primary)] text-white hover:bg-[var(--primary)]': day.isSelected,
                         'font-semibold': day.isToday,
                     }">

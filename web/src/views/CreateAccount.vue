@@ -13,9 +13,9 @@
 
                 <Button @click="handleSignUp" text="Sign Up" :is-loading="isLoading" />
             </div>
-            <div class="mt-2">
+            <div class="mt-2 text-[var(--neutral-400)]">
                 already have an account? <b @click="emits('gotoSignIn')"
-                    class="ml-2 font-bold underline cursor-pointer">Sign In</b>.
+                    class="ml-2 font-bold underline cursor-pointer text-[var(--neutral-100)]">Sign In</b>.
             </div>
         </div>
     </div>
