@@ -1,6 +1,6 @@
 import apiClient from "../api/client";
 import type { BankAccount } from "../bankAccounts/bankAccounts";
-import type { Item, ItemWithBadges } from "../items";
+import type { ItemWithBadges } from "../items";
 
 export enum PaymentMethod {
     CreditCard = "credit_card",
@@ -34,6 +34,7 @@ export type TransactionWithDetails = Transaction & {
 export type Badge = {
     id: number;
     name: string;
+    color: string;
 }
 
 export type RecentResponse = Omit<Transaction, "date"> & {
@@ -69,7 +70,7 @@ export const TransactionService = {
             establishment: transaction.establishment,
             credit: transaction.credit,
             value: transaction.value,
-            date: formatDate(transaction.date),
+            date: formatDateForSaving(transaction.date),
             bank_account_id: transaction.bankAccountId,
             card_id: transaction.cardId,
         };
@@ -80,6 +81,7 @@ export const TransactionService = {
     getRecent: async (): Promise<TransactionWithBadges[]> => {
         const result = await apiClient
             .get<RecentResponse[]>("/transactions/recent");
+        console.log(result)
 
         return result.map(el => ({
             ...el,
@@ -111,7 +113,7 @@ function parseDate(isoString: string) {
     return new Date(corrected);
 }
 
-function formatDate(date: Date): string {
+function formatDateForSaving(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const day = String(date.getDate()).padStart(2, '0');
@@ -129,4 +131,16 @@ function formatDate(date: Date): string {
     const offsetMinutesPart = String(absOffset % 60).padStart(2, '0');
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${fractionalSeconds} ${sign}${offsetHours}${offsetMinutesPart}`;
+}
+
+export function formatDateShort(date: Date | undefined) {
+    if (!date) return ''
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year} - ${hours}:${minutes}`;
 }

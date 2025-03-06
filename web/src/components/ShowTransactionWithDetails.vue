@@ -14,7 +14,7 @@
                 <show-field :is-loading="isLoading" name="Method" :value="transaction?.method" />
                 <show-field :is-loading="isLoading" name="Establishment" :value="transaction?.establishment" />
                 <show-field :is-loading="isLoading" name="Value" :value="transaction?.value" />
-                <show-field :is-loading="isLoading" name="Date" :value="formatDate(transaction?.date)" />
+                <show-field :is-loading="isLoading" name="Date" :value="formatDateShort(transaction?.date)" />
                 <show-field :is-loading="isLoading" name="Bank Account" :value="transaction?.bank_account.name" />
             </div>
             <div class="flex-1 flex gap-4 flex-col">
@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import ShowField from './ShowField.vue';
 import type TransferIcon from '../assets/TransferIcon.vue';
-import type { TransactionWithDetails } from '../services/transactions/transaction';
+import { type TransactionWithDetails, formatDateShort } from '../services/transactions/transaction';
 
 const emits = defineEmits(["close"]);
 
@@ -49,15 +49,5 @@ defineProps<{
     isLoading: boolean;
 }>();
 
-function formatDate(date: Date | undefined) {
-    if (!date) return ''
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${day}/${month}/${year} - ${hours}:${minutes}`;
-}
 </script>

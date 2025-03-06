@@ -21,14 +21,14 @@
                     <card class="flex-1 flex flex-col justify-between p-6">
                         <div class="flex gap-6 text-[var(--neutral-400)]">
                             <credit-card-icon />
-                            <div>Debth</div>
+                            <div>Debt</div>
                         </div>
                         <div class="text-4xl">R$ {{ balance?.credit }}</div>
                     </card>
                 </div>
             </div>
             <card class="w-full p-6 min-h-1/3 flex gap-6">
-                <recent-transfer-activities class="w-1/2" :transactions="transactions" />
+                <most-expansive-badges class="w-1/2" :badges="mostExpansiveBadges" />
                 <recent-transfer-activities class="w-1/2" :transactions="transactions" />
             </card>
         </div>
@@ -40,6 +40,7 @@ import Sidebar from "../components/Sidebar.vue";
 import { ref, onMounted, type Ref } from "vue";
 import Card from "../components/Card.vue";
 import Modal from "../components/Modal.vue";
+import MostExpansiveBadges from "../components/MostExpansiveBadges.vue";
 import BankIcon from "../assets/BankIcon.vue"
 import WalletIcon from "../assets/WalletIcon.vue"
 import CreditCardIcon from "../assets/CreditCardIcon.vue"
@@ -61,10 +62,10 @@ import {
 
 onMounted(async () => {
     Promise.all([
-        getBalance(),
+        //getBalance(),
         //    getBankAccounts(),
         getRecentTransactions(),
-        //    getMostExpansiveBadges(),
+         getMostExpansiveBadges(),
     ])
 });
 

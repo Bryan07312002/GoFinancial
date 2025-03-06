@@ -162,10 +162,9 @@ func (b *transactionRepository) GetRecentTransactions(userID uint) ([]models.Tra
 		for _, item := range transaction.Items {
 			for _, badge := range item.Badges {
 				transactionWithBadges.Badges = append(
-					transactionWithBadges.Badges, models.Badge{
-						Name: badge.Name,
-						ID:   badge.ID,
-					})
+					transactionWithBadges.Badges,
+					ToBadge(badge),
+				)
 			}
 		}
 

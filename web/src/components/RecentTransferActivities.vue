@@ -9,8 +9,9 @@
             <loading-icon />
         </div>
 
-        <div v-else class="flex flex-col shadow-[var(--neutral-800)] shadow-lg rounded-md overflow-hidden h-full">
-            <div @click="emits('openTransaction', transaction.id)" v-for="transaction,i in transactions" :class="i%2==0? '':'bg-[var(--neutral-800)]'"
+        <div v-else class="flex flex-col shadow-lg rounded-md overflow-hidden h-full">
+            <div @click="emits('openTransaction', transaction.id)" v-for="transaction, i in transactions"
+                :class="i % 2 == 0 ? '' : 'bg-[var(--neutral-800)]'"
                 class="cursor-pointer flex justify-between p-4 hover:bg-[var(--accent)] rounded-[var(--radius)]">
                 <div class="flex gap-4 items-center">
 
@@ -24,14 +25,13 @@
                 </div>
 
                 <div class="flex flex-col items-end">
-                    <div v-if="transaction.type == TransactionType.Income" class="text-green-300"> R$ {{
-                        transaction.value
-                        }} </div>
+                    <div v-if="transaction.type == TransactionType.Income" class="text-green-300">
+                        R$ {{ transaction.value }}
+                    </div>
                     <div v-else class="text-[var(--des)]"> R$ {{ transaction.value }} </div>
 
                     <div class="flex gap-1 max-w-40 overflow-hidden">
-                        <div class="border border-red-600 text-red-600 bg-red-300 text-sm min-w-10 max-w-15 rounded-[var(--radius)] text-center text-ellipsis overflow-hidden text-nowrap"
-                            v-for="badge in transaction.badges">{{ badge.name }}</div>
+                        <badge v-for="badge in transaction.badges" :badge="badge" />
                     </div>
                 </div>
             </div>
@@ -45,6 +45,8 @@ import Button from "./Button.vue";
 import ArrowUpIcon from "../assets/ArrowUpIcon.vue";
 import LoadingIcon from '../assets/LoadingIcon.vue';
 import ArrowDownIcon from "../assets/ArrowDownIcon.vue";
+import { formatDateShort } from "../services/transactions/transaction"
+import Badge from "./Badge.vue";
 import {
     TransactionType,
     type TransactionWithBadges,
@@ -66,16 +68,7 @@ function formatDate(date: Date) {
         return `Ontem às ${formatTime(date)}`;
     }
 
-    return date.toLocaleString('pt-BR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-    });
+    return formatDateShort(date)
 }
 
 function isSameDay(date1: Date, date2: Date): boolean {
