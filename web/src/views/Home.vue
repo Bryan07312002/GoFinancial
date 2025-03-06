@@ -1,35 +1,34 @@
 <template>
-    <div class="flex max-w-screen">
+    <div class="flex max-h-screen max-w-screen">
         <sidebar />
-        <div class="max-w-[1440px] mx-auto flex flex-col gap-6 w-full p-6">
-            <div>
-                <div class="flex gap-6 h-38 w-full">
-                    <card class="flex-1 flex flex-col justify-between p-6">
-                        <div class="flex gap-6 text-[var(--neutral-400)]">
-                            <bank-icon />
-                            <div>Total Network</div>
-                        </div>
-                        <div class="text-4xl">R$ {{ balance?.balance + balance?.credit }}</div>
-                    </card>
-                    <card class="flex-1 flex flex-col justify-between p-6">
-                        <div class="flex gap-6 text-[var(--neutral-400)]">
-                            <wallet-icon />
-                            <div>Balance</div>
-                        </div>
-                        <div class="text-4xl">R$ {{ balance?.balance }}</div>
-                    </card>
-                    <card class="flex-1 flex flex-col justify-between p-6">
-                        <div class="flex gap-6 text-[var(--neutral-400)]">
-                            <credit-card-icon />
-                            <div>Debt</div>
-                        </div>
-                        <div class="text-4xl">R$ {{ balance?.credit }}</div>
-                    </card>
-                </div>
+        <div class="max-w-[1440px] overflow-x-auto mx-auto flex flex-col gap-6 w-full p-6">
+            <div class="flex flex-wrap gap-6 w-full flex-1">
+                <card class="flex-1 min-w-[300px] flex flex-col gap-6 justify-between p-6">
+                    <div class="flex gap-6 text-[var(--neutral-400)]">
+                        <coin-icon />
+                        <div>Total Network</div>
+                    </div>
+                    <div class="text-4xl">R$ {{ balance?.balance + balance?.credit }}</div>
+                </card>
+                <card class="flex-1 flex min-w-[300px] gap-6 flex-col justify-between p-6">
+                    <div class="flex gap-6 text-[var(--neutral-400)]">
+                        <wallet-icon />
+                        <div>Balance</div>
+                    </div>
+                    <div class="text-4xl">R$ {{ balance?.balance }}</div>
+                </card>
+                <card class="flex-1 flex min-w-[300px] flex-col gap-6 justify-between p-6">
+                    <div class="flex gap-6 text-[var(--neutral-400)]">
+                        <credit-card-icon />
+                        <div>Debt</div>
+                    </div>
+                    <div class="text-4xl">R$ {{ balance?.credit }}</div>
+                </card>
             </div>
-            <card class="w-full p-6 min-h-1/3 flex gap-6">
-                <most-expansive-badges class="w-1/2" :badges="mostExpansiveBadges" />
-                <recent-transfer-activities class="w-1/2" :transactions="transactions" />
+
+            <card class="w-full p-6  flex flex-wrap flex-5 gap-6">
+                <most-expansive-badges class="flex-1 min-h-[300px]" :badges="mostExpansiveBadges" />
+                <recent-transfer-activities class="flex-1 min-h-[300px]" :transactions="transactions" />
             </card>
         </div>
     </div>
@@ -39,33 +38,26 @@
 import Sidebar from "../components/Sidebar.vue";
 import { ref, onMounted, type Ref } from "vue";
 import Card from "../components/Card.vue";
-import Modal from "../components/Modal.vue";
 import MostExpansiveBadges from "../components/MostExpansiveBadges.vue";
-import BankIcon from "../assets/BankIcon.vue"
 import WalletIcon from "../assets/WalletIcon.vue"
 import CreditCardIcon from "../assets/CreditCardIcon.vue"
-import BankAccountList from "../components/BankAccountList.vue";
-import CreateBankAccount from "../components/CreateBankAccount.vue";
-import NewTransaction from "../components/NewTransaction.vue";
-import LoadingIcon from "../assets/LoadingIcon.vue";
 import RecentTransferActivities from "../components/RecentTransferActivities.vue";
 import { BankAccountService, type BankAccount } from "../services/bankAccounts/bankAccounts";
 import { BadgeService, type BadgeWithValue } from "../services/badges/badges";
-import BadgesWithValues from "../components/BadgesWithValues.vue";
-import ShowTransactionWithDetails from "../components/ShowTransactionWithDetails.vue";
 import {
     type Balance,
     TransactionService,
     type TransactionWithBadges,
     type TransactionWithDetails,
 } from "../services/transactions/transaction";
+import CoinIcon from "../assets/CoinIcon.vue";
 
 onMounted(async () => {
     Promise.all([
         //getBalance(),
         //    getBankAccounts(),
         getRecentTransactions(),
-         getMostExpansiveBadges(),
+        getMostExpansiveBadges(),
     ])
 });
 
@@ -81,8 +73,7 @@ const modalState = ref({
 })
 
 const isBankAccountsLoading = ref(true);
-// @ts-ignore: dont know why but ts i being crazy here
-const bankAccounts: Ref<BankAccount[]> = ref([]);
+const bankAccounts: Ref<BankAccount[], BankAccount[]> = ref([]);
 
 async function getBankAccounts() {
     isBankAccountsLoading.value = true;

@@ -12,7 +12,7 @@
         <div v-else class="flex flex-col shadow-lg rounded-md overflow-hidden h-full">
             <div @click="emits('openTransaction', transaction.id)" v-for="transaction, i in transactions"
                 :class="i % 2 == 0 ? '' : 'bg-[var(--neutral-800)]'"
-                class="cursor-pointer flex justify-between p-4 hover:bg-[var(--accent)] rounded-[var(--radius)]">
+                class="cursor-pointer h-full flex justify-between p-4 hover:bg-[var(--neutral-700)] rounded-[var(--radius)]">
                 <div class="flex gap-4 items-center">
 
                     <arrow-up-icon class="w-6 h-6 text-green-300" v-if="transaction.type == TransactionType.Income" />
