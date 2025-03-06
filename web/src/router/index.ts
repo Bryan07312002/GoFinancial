@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-// Import your components/pages
 import Authorization from '../views/Authorization.vue';
 import Home from '../views/Home.vue';
+import Transactions from '../views/Transactions.vue';
 
-// Define routes
 const routes = [
     {
         path: '/login',
@@ -16,9 +15,13 @@ const routes = [
         name: 'Home',
         component: Home,
     },
+    {
+        path: '/transactions',
+        name: 'Transaction',
+        component: Transactions,
+    },
 ];
 
-// Create the router instance
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes,

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 min-w-72">
         <div class="flex justify-between font-bold">
             <transfer-icon class="w-6 h-6" />
             Transaction

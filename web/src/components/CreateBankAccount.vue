@@ -10,6 +10,9 @@
                 X
             </div>
         </div>
+
+        <div class="h-[1px] mb-1 mt-4 w-full bg-[var(--neutral-600)]" />
+
         <Input :disabled="isLoading" v-model:value="createBankAccount.name" placeholder="name" />
         <Input :disabled="isLoading" v-model:value="createBankAccount.description" placeholder="description" />
 

@@ -11,6 +11,8 @@
             </div>
         </div>
 
+        <div class="h-[1px] mb-1 w-full bg-[var(--neutral-600)]" />
+
         <toggle-group label="Transaction Type" :disabled="isLoading" :options="[
             { name: TransactionType.Income, value: TransactionType.Income },
             { name: TransactionType.Expense, value: TransactionType.Expense }

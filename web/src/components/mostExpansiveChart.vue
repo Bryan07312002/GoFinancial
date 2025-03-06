@@ -21,7 +21,9 @@ var options = {
     plotOptions: {
         bar: {
             borderRadius: 10,
-            dataLabels: { position: 'top', show: false },
+            dataLabels: { show: false },
+            columnWidth: '45%',
+            distributed: true,
         }
     },
     dataLabels: {
@@ -45,14 +47,6 @@ var options = {
         axisTicks: { show: false },
         labels: { show: false }
     },
-    title: {
-        floating: false,
-        offsetY: 330,
-        align: 'center',
-        style: {
-            color: '#cb3cff'
-        }
-    }
 };
 
 onMounted(() => {
