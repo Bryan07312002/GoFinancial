@@ -2,10 +2,12 @@ package db
 
 import (
 	"financial/internal/models"
-	"time"
 
+	"github.com/go-faker/faker/v4"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
+	"math/rand"
+	"time"
 )
 
 func Seed(config map[string]string) {
@@ -24,18 +26,21 @@ func Seed(config map[string]string) {
 
 }
 
+func random[T any](t []T) T {
+	randomIndex := rand.Intn(len(t))
+	return t[randomIndex]
+}
+
 func createBankAccounts(user models.User, conn *gorm.DB) []models.BankAccount {
-	bankAccs := [2]models.BankAccount{
-		{
+	bankAccs := []models.BankAccount{}
+
+	for range rand.Intn(6) {
+		bankAccs = append(bankAccs, models.BankAccount{
+			Name:        faker.Name(),
+			Description: faker.Sentence(),
 			UserID:      user.ID,
-			Name:        "Bank number one",
-			Description: "first bank account",
-		},
-		{
-			UserID:      user.ID,
-			Name:        "Bank number two",
-			Description: "second bank account",
-		}}
+		})
+	}
 
 	bankAccRepo := NewBankAccountRepository(conn)
 	for i, bankAcc := range bankAccs {
