@@ -21,6 +21,7 @@ func generateTestTransactionRepository(t *testing.T) TransactionRepository {
 			},
 		),
 	})
+
 	if err != nil {
 		t.Fatalf("failed to connect to in-memory database: %v", err)
 	}
@@ -79,7 +80,7 @@ func TestTransactionRepository(t *testing.T) {
 		}
 
 		// Find the transaction by ID
-		foundTransaction, err := transactionRepo.FindByID(transactionID)
+		foundTransaction, err := transactionRepo.FindByID(transactionID, 1)
 		if err != nil {
 			t.Errorf("expected no error, got %v", err)
 		}
@@ -120,7 +121,7 @@ func TestTransactionRepository(t *testing.T) {
 		}
 
 		// Try to find the deleted transaction (should return an error)
-		_, err = transactionRepo.FindByID(transactionID)
+		_, err = transactionRepo.FindByID(transactionID, 1)
 		if err == nil {
 			t.Error("expected error when finding deleted transaction, got nil")
 		}

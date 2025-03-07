@@ -9,7 +9,7 @@ import (
 
 type TransactionRepository interface {
 	Create(transaction *models.Transaction) (uint, error)
-	FindByID(id uint) (models.Transaction, error)
+	FindByID(id uint, userID uint) (models.Transaction, error)
 	FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error)
 	PaginateTransactionWithBadgesFromUserID(
 		paginteOpt PaginateOptions,
@@ -17,6 +17,7 @@ type TransactionRepository interface {
 	) (PaginateResult[models.TransactionWithBadges], error)
 	GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error)
 	GetCurrentBalances(userID uint) (decimal.Decimal, decimal.Decimal, error)
+	Update(transaction models.Transaction) error
 	Delete(id uint) error
 }
 
@@ -117,15 +118,19 @@ func (c *transactionRepository) Create(transaction *models.Transaction) (uint, e
 	return transactionTableInstance.ID, nil
 }
 
-func (c *transactionRepository) FindByID(id uint) (models.Transaction, error) {
+func (c *transactionRepository) FindByID(id uint, userID uint) (models.Transaction, error) {
 	var transactionTableInstance TransactionTable
 
-	if err := c.db.First(&transactionTableInstance, id).Error; err != nil {
+	if err := c.db.
+		Model(&TransactionTable{}).
+		Joins("bank_accounts ON transactions.bank_account_id=bank_accounts.id").
+		Where("bank_accounts.user_id=?", userID).
+		First(&transactionTableInstance, id).Error; err != nil {
+
 		return models.Transaction{}, err
 	}
 
-	transaction := ToTransaction(transactionTableInstance)
-	return transaction, nil
+	return ToTransaction(transactionTableInstance), nil
 }
 
 func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error) {
@@ -288,6 +293,19 @@ func (b *transactionRepository) GetCurrentBalances(
 	}
 
 	return decimal.NewFromFloat(balance), decimal.NewFromFloat(credit), nil
+}
+
+func (b *transactionRepository) Update(transaction models.Transaction) error {
+	result := b.db.Save(ToTransactionTable(transaction))
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (b *transactionRepository) Delete(id uint) error {

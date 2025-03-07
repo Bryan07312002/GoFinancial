@@ -2,10 +2,12 @@ package services
 
 import (
 	"financial/internal/models"
+	"financial/internal/utils"
 
-	"github.com/shopspring/decimal"
 	"testing"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 func generateCreateTransactionService() (
@@ -100,7 +102,7 @@ func TestCreateTransactionService(t *testing.T) {
 		}
 	})
 
-	t.Run("invalid payment method for transfer", func(t *testing.T) {
+	t.Run("should return error if payment method is invalid", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
 		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
@@ -127,7 +129,7 @@ func TestCreateTransactionService(t *testing.T) {
 		}
 	})
 
-	t.Run("default values when not provided", func(t *testing.T) {
+	t.Run("should set default values when not provided", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
 		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
@@ -156,36 +158,30 @@ func TestCreateTransactionService(t *testing.T) {
 		}
 	})
 
-	t.Run("custom date value", func(t *testing.T) {
+	t.Run("should save with custom date value", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
 		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
-		var _ *models.Transaction
-		txMock.CreateFunc = func(tx *models.Transaction) (uint, error) {
-			_ = tx
+		txMock.CreateFunc = func(_ *models.Transaction) (uint, error) {
 			return 1, nil
 		}
 
-		customDate := time.Now().String()
+		customDate := time.Now()
+		customDateString := utils.FormatDate(customDate)
 		input := CreateTransaction{
 			Type:          models.Expense.String(),
 			Value:         validValue,
 			BankAccountID: validBankAccountID,
-			Date:          &customDate,
+			Date:          &customDateString,
 		}
 
 		err := service.Run(input, validUserID)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-
-		// TODO: test if date is correct
-		// if !createdTx.Date.Equal(customDate) {
-		// 	t.Errorf("expected Date %v, got %v", customDate, createdTx.Date)
-		// }
 	})
 
 	t.Run("invalid transaction type", func(t *testing.T) {

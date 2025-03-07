@@ -4,6 +4,8 @@ import (
 	"financial/internal/db"
 	"financial/internal/models"
 	"financial/internal/sessions"
+
+	"github.com/shopspring/decimal"
 )
 
 type HashRepositoryMock struct {
@@ -112,28 +114,48 @@ func (c *CardRepositoryMock) Delete(id uint) error {
 }
 
 type TransactionRepositoryMock struct {
-	CreateFunc             func(transaction *models.Transaction) (uint, error)
-	FindByIDFunc           func(id uint) (models.Transaction, error)
-	PaginateFromUserIDFunc func(
-		paginateOpt db.PaginateOptions,
+	CreateFunc                                  func(transaction *models.Transaction) (uint, error)
+	FindByIDFunc                                func(id, userID uint) (models.Transaction, error)
+	FindByIDWithDetailsFunc                     func(id, userID uint) (models.TransactionWithDetails, error)
+	PaginateTransactionWithBadgesFromUserIDFunc func(
+		paginteOpt db.PaginateOptions,
 		userID uint,
-	) (db.PaginateResult[models.Transaction], error)
-	DeleteFunc func(id uint) error
+	) (db.PaginateResult[models.TransactionWithBadges], error)
+	GetRecentTransactionsFunc func(userID uint) ([]models.TransactionWithBadges, error)
+	GetCurrentBalancesFunc    func(userID uint) (decimal.Decimal, decimal.Decimal, error)
+	UpdateFunc                func(t models.Transaction) error
+	DeleteFunc                func(id uint) error
 }
 
 func (t *TransactionRepositoryMock) Delete(id uint) error {
 	return t.DeleteFunc(id)
 }
 
-func (t *TransactionRepositoryMock) FindByID(id uint) (models.Transaction, error) {
-	return t.FindByIDFunc(id)
+func (t *TransactionRepositoryMock) Update(transaction models.Transaction) error {
+	return t.UpdateFunc(transaction)
 }
 
-func (b *TransactionRepositoryMock) PaginateFromUserID(
+func (t *TransactionRepositoryMock) FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error) {
+	return t.FindByIDWithDetailsFunc(id, userID)
+}
+
+func (t *TransactionRepositoryMock) GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error) {
+	return t.GetRecentTransactionsFunc(userID)
+}
+
+func (t *TransactionRepositoryMock) GetCurrentBalances(userID uint) (decimal.Decimal, decimal.Decimal, error) {
+	return t.GetCurrentBalancesFunc(userID)
+}
+
+func (t *TransactionRepositoryMock) FindByID(id, userID uint) (models.Transaction, error) {
+	return t.FindByIDFunc(id, userID)
+}
+
+func (t *TransactionRepositoryMock) PaginateTransactionWithBadgesFromUserID(
 	paginateOpt db.PaginateOptions,
 	userID uint,
-) (db.PaginateResult[models.Transaction], error) {
-	return b.PaginateFromUserIDFunc(paginateOpt, userID)
+) (db.PaginateResult[models.TransactionWithBadges], error) {
+	return t.PaginateTransactionWithBadgesFromUserID(paginateOpt, userID)
 }
 
 func (t *TransactionRepositoryMock) Create(transaction *models.Transaction) (uint, error) {
@@ -145,6 +167,7 @@ func (t *TransactionRepositoryMock) Create(transaction *models.Transaction) (uin
 //	SESSIONS repositories
 //
 // -------------------------------
+
 type AuthorizationRepositoryMock struct {
 	CreateTokenFunc     func(user models.User) (sessions.Token, error)
 	IsAuthenticatedFunc func(token sessions.Token) (uint, bool)

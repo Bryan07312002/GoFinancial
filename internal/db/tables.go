@@ -47,8 +47,8 @@ func (CardTable) TableName() string {
 type TransactionTable struct {
 	ID uint `gorm:"primaryKey;autoIncrement"`
 
-	Type   string  `gorm:"not null;"type:enum('income','expense','transfer')"`
-	Method *string `gorm:"not null;"type:enum('credit_card','debit_card','other')"`
+	Type   string  `gorm:"not null"`
+	Method *string `gorm:"not null"`
 
 	Credit bool `gorm:"not null"`
 
