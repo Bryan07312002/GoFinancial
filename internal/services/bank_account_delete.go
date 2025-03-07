@@ -15,7 +15,7 @@ func NewDeleteBankAccountService(
 }
 
 func (d *DeleteBankAccountService) Run(id, userId uint) error {
-	bankAccount, err := d.bankAccountRepo.FindByID(id)
+	bankAccount, err := d.bankAccountRepo.FindByID(id, userId)
 	if err != nil {
 		return err
 	}

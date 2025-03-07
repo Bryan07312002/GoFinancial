@@ -40,7 +40,7 @@ func (c *CreateTransactionService) Run(
 	newTransaction CreateTransaction,
 	userId uint,
 ) error {
-	bankAccount, err := c.bankAccountRepo.FindByID(newTransaction.BankAccountID)
+	bankAccount, err := c.bankAccountRepo.FindByID(newTransaction.BankAccountID, userId)
 	if err != nil {
 		return err
 	}

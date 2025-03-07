@@ -211,7 +211,7 @@ func (b *badgeRepository) GetMostExpansives(userID uint) ([]models.BadgeWithValu
     limit 5;
     `
 
-	var badges []models.BadgeWithValue
+	var badges []models.BadgeWithValue = []models.BadgeWithValue{}
 	err := b.db.Raw(query, userID).Scan(&badges).Error
 	if err != nil {
 		return []models.BadgeWithValue{}, err
@@ -220,7 +220,7 @@ func (b *badgeRepository) GetMostExpansives(userID uint) ([]models.BadgeWithValu
 	return badges[:], nil
 }
 
-func (b *badgeRepository) Update(badge *models.Badge) error {
+func (b *badgeRepository) Update(badge models.Badge) error {
 	result := b.db.Save(badge)
 	if result.Error != nil {
 		return result.Error
