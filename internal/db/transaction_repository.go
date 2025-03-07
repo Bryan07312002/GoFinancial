@@ -11,10 +11,10 @@ type TransactionRepository interface {
 	Create(transaction *models.Transaction) (uint, error)
 	FindByID(id uint) (models.Transaction, error)
 	FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error)
-	PaginateFromUserID(
+	PaginateTransactionWithBadgesFromUserID(
 		paginteOpt PaginateOptions,
 		userID uint,
-	) (PaginateResult[models.Transaction], error)
+	) (PaginateResult[models.TransactionWithBadges], error)
 	GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error)
 	GetCurrentBalances(userID uint) (decimal.Decimal, decimal.Decimal, error)
 	Delete(id uint) error
@@ -44,6 +44,23 @@ func ToTransactionTable(t models.Transaction) TransactionTable {
 	}
 }
 
+func toTransactionWithBadges(t TransactionTable) models.TransactionWithBadges {
+	transactionWithBadges := models.TransactionWithBadges{
+		Transaction: ToTransaction(t),
+	}
+
+	for _, item := range t.Items {
+		for _, badge := range item.Badges {
+			transactionWithBadges.Badges = append(
+				transactionWithBadges.Badges,
+				ToBadge(badge),
+			)
+		}
+	}
+
+	return transactionWithBadges
+}
+
 func toTransactionWithDetails(t TransactionTable) models.TransactionWithDetails {
 	var items []models.ItemWithBadges
 	for _, item := range t.Items {
@@ -67,7 +84,7 @@ func toTransactionWithDetails(t TransactionTable) models.TransactionWithDetails 
 	return models.TransactionWithDetails{
 		Transaction: ToTransaction(t),
 		Items:       items,
-		BankAccount: ToBankAccount(t.BankAccount),
+		BankAccount: toBankAccount(t.BankAccount),
 	}
 }
 
@@ -128,14 +145,64 @@ func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.Tra
 	return toTransactionWithDetails(transaction), nil
 }
 
-func (b *transactionRepository) PaginateFromUserID(
+func (b *transactionRepository) PaginateTransactionWithBadgesFromUserID(
 	paginateOpt PaginateOptions,
 	userID uint,
-) (PaginateResult[models.Transaction], error) {
-	panic("not implemented yet")
+) (PaginateResult[models.TransactionWithBadges], error) {
+	var totalRecords int64
+	var transactions []TransactionTable
+
+	query := b.db.Model(&TransactionTable{}).
+		Preload("Items.Badges").
+		Preload("BankAccount").
+		Joins("JOIN bank_accounts ON transactions.bank_account_id = bank_accounts.id").
+		Where("bank_accounts.user_id = ?", userID).
+		Where(
+			"transactions.date BETWEEN ? AND ?",
+			paginateOpt.Finish,
+			paginateOpt.Start,
+		)
+
+	query.Count(&totalRecords)
+
+	offset := (paginateOpt.Page - 1) * paginateOpt.Take
+	query.Model(&TransactionTable{}).
+		Limit(int(paginateOpt.Take)).
+		Offset(int(offset))
+
+	if paginateOpt.SortBy != "" {
+		order := paginateOpt.SortBy
+		if paginateOpt.SortDesc {
+			order += " DESC"
+		} else {
+			order += " ASC"
+		}
+		query = query.Order(order)
+	}
+
+	query.Find(&transactions)
+
+	results := make([]models.TransactionWithBadges, len(transactions))
+	for i, acc := range transactions {
+		results[i] = toTransactionWithBadges(acc)
+	}
+
+	totalPages := totalRecords / int64(paginateOpt.Take)
+	if totalRecords%int64(paginateOpt.Take) != 0 {
+		totalPages++
+	}
+
+	return PaginateResult[models.TransactionWithBadges]{
+		Data:        results,
+		Total:       uint64(totalRecords),
+		CurrentPage: paginateOpt.Page,
+		PageSize:    paginateOpt.Take,
+		TotalPages:  uint(totalPages),
+	}, nil
 }
 
-func (b *transactionRepository) GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error) {
+func (b *transactionRepository) GetRecentTransactions(
+	userID uint) ([]models.TransactionWithBadges, error) {
 	var transactions []TransactionTable
 
 	subquery := b.db.Model(&BankAccountTable{}).Select("id").Where("user_id = ?", userID)

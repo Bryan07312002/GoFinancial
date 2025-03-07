@@ -5,15 +5,15 @@ import (
 	"financial/internal/models"
 )
 
-type PaginateTransactions struct {
+type RecentTransactions struct {
 	transactionRepo db.TransactionRepository
 }
 
 func NewRecentTransactions(
-	transactionRepo db.TransactionRepository) PaginateTransactions {
-	return PaginateTransactions{transactionRepo}
+	transactionRepo db.TransactionRepository) RecentTransactions {
+	return RecentTransactions{transactionRepo}
 }
 
-func (p *PaginateTransactions) Run(userId uint) ([]models.TransactionWithBadges, error) {
+func (p *RecentTransactions) Run(userId uint) ([]models.TransactionWithBadges, error) {
 	return p.transactionRepo.GetRecentTransactions(userId)
 }

@@ -32,7 +32,7 @@ func ToBankAccountTable(bankAccount models.BankAccount) BankAccountTable {
 	}
 }
 
-func ToBankAccount(bankAccountTable BankAccountTable) models.BankAccount {
+func toBankAccount(bankAccountTable BankAccountTable) models.BankAccount {
 	return models.BankAccount{
 		ID:          bankAccountTable.ID,
 		UserID:      bankAccountTable.UserID,
@@ -70,7 +70,7 @@ func (r *bankAccountRepository) FindByID(ID uint) (models.BankAccount, error) {
 		return models.BankAccount{}, err
 	}
 
-	return ToBankAccount(banckAccountTableInstance), nil
+	return toBankAccount(banckAccountTableInstance), nil
 }
 
 func (b *bankAccountRepository) FindBankAccountByCardID(
@@ -89,7 +89,7 @@ func (b *bankAccountRepository) FindBankAccountByCardID(
 		return models.BankAccount{}, err
 	}
 
-	return ToBankAccount(bankAccountTableInstance), nil
+	return toBankAccount(bankAccountTableInstance), nil
 }
 
 func (c *bankAccountRepository) FindBankAccountByTransactionID(
@@ -111,7 +111,7 @@ func (c *bankAccountRepository) FindBankAccountByTransactionID(
 	}
 
 	// Return the bank account associated with the transaction
-	return ToBankAccount(bankAccountTableInstance), nil
+	return toBankAccount(bankAccountTableInstance), nil
 }
 
 func (b *bankAccountRepository) PaginateFromUserID(
@@ -150,7 +150,7 @@ func (b *bankAccountRepository) PaginateFromUserID(
 	// Convert database models to domain models
 	results := make([]models.BankAccount, len(dbAccounts))
 	for i, acc := range dbAccounts {
-		results[i] = ToBankAccount(acc)
+		results[i] = toBankAccount(acc)
 	}
 
 	// Calculate total pages

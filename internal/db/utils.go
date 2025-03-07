@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -10,6 +12,7 @@ type PaginateOptions struct {
 	Take     uint
 	SortBy   string
 	SortDesc bool
+	TimeWindowSearch
 }
 
 // PaginateResult holds the result of a paginated query
@@ -19,6 +22,11 @@ type PaginateResult[T any] struct {
 	CurrentPage uint   `json:"current_page"`
 	PageSize    uint   `json:"page_size"`
 	TotalPages  uint   `json:"total_pages"`
+}
+
+type TimeWindowSearch struct {
+	Start  time.Time `json:"from"` // default should be 'time.Now()'
+	Finish time.Time `json:"to"`   // default should be zero
 }
 
 func InitDatabase(driver Driver, config map[string]string) *gorm.DB {
