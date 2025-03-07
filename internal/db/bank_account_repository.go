@@ -3,7 +3,6 @@ package db
 import (
 	"financial/internal/models"
 
-	"errors"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +10,7 @@ import (
 type BankAccountRepository interface {
 	Create(bankAccount models.BankAccount) (uint, error)
 
-	FindByID(ID uint) (models.BankAccount, error)
+	FindByID(ID, userID uint) (models.BankAccount, error)
 	FindBankAccountByCardID(cardID uint) (models.BankAccount, error)
 	FindBankAccountByTransactionID(
 		transactionID uint) (models.BankAccount, error)
@@ -20,6 +19,7 @@ type BankAccountRepository interface {
 		paginteOpt PaginateOptions,
 		userID uint,
 	) (PaginateResult[models.BankAccount], error)
+	Update(bankAccount models.BankAccount) error
 	Delete(ID uint) error
 }
 
@@ -59,14 +59,14 @@ func (b *bankAccountRepository) Create(bankAccount models.BankAccount) (uint, er
 	return bankAccountTableInstance.ID, nil
 }
 
-func (r *bankAccountRepository) FindByID(ID uint) (models.BankAccount, error) {
+func (r *bankAccountRepository) FindByID(ID, userID uint) (models.BankAccount, error) {
 	var banckAccountTableInstance BankAccountTable
 
-	if err := r.db.First(&banckAccountTableInstance, ID).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return models.BankAccount{}, errors.New("bank account not found")
-		}
-		// Return the error if there's a database issue
+	if err := r.db.
+		Model(&BankAccountTable{}).
+		Where("user_id=?", userID).
+		First(&banckAccountTableInstance, ID).Error; err != nil {
+
 		return models.BankAccount{}, err
 	}
 
@@ -75,15 +75,12 @@ func (r *bankAccountRepository) FindByID(ID uint) (models.BankAccount, error) {
 
 func (b *bankAccountRepository) FindBankAccountByCardID(
 	cardID uint) (models.BankAccount, error) {
-	// Create a variable to hold the result
 	var cardTableInstance CardTable
 
-	// Query the database for the CardTable instance with the given cardID
 	if err := b.db.First(&cardTableInstance, cardID).Error; err != nil {
 		return models.BankAccount{}, err
 	}
 
-	// Query the bank account using the BankAccountID from the card table
 	var bankAccountTableInstance BankAccountTable
 	if err := b.db.First(&bankAccountTableInstance, cardTableInstance.BankAccountID).Error; err != nil {
 		return models.BankAccount{}, err
@@ -110,7 +107,6 @@ func (c *bankAccountRepository) FindBankAccountByTransactionID(
 		return models.BankAccount{}, err
 	}
 
-	// Return the bank account associated with the transaction
 	return toBankAccount(bankAccountTableInstance), nil
 }
 
@@ -121,19 +117,15 @@ func (b *bankAccountRepository) PaginateFromUserID(
 	var totalRecords int64
 	var dbAccounts []BankAccountTable
 
-	// Count total bank accounts for the user
 	b.db.Model(&BankAccountTable{}).Where("user_id = ?", userID).Count(&totalRecords)
 
-	// Calculate pagination offset
 	offset := (paginateOpt.Page - 1) * paginateOpt.Take
 
-	// Build the query
 	query := b.db.Model(&BankAccountTable{}).
 		Where("user_id = ?", userID).
 		Limit(int(paginateOpt.Take)).
 		Offset(int(offset))
 
-	// Apply sorting if specified
 	if paginateOpt.SortBy != "" {
 		order := paginateOpt.SortBy
 		if paginateOpt.SortDesc {
@@ -144,16 +136,13 @@ func (b *bankAccountRepository) PaginateFromUserID(
 		query = query.Order(order)
 	}
 
-	// Execute the query
 	query.Find(&dbAccounts)
 
-	// Convert database models to domain models
 	results := make([]models.BankAccount, len(dbAccounts))
 	for i, acc := range dbAccounts {
 		results[i] = toBankAccount(acc)
 	}
 
-	// Calculate total pages
 	totalPages := totalRecords / int64(paginateOpt.Take)
 	if totalRecords%int64(paginateOpt.Take) != 0 {
 		totalPages++
@@ -166,6 +155,19 @@ func (b *bankAccountRepository) PaginateFromUserID(
 		PageSize:    paginateOpt.Take,
 		TotalPages:  uint(totalPages),
 	}, nil
+}
+
+func (b *bankAccountRepository) Update(bankAccount models.BankAccount) error {
+	result := b.db.Save(bankAccount)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (b *bankAccountRepository) Delete(id uint) error {

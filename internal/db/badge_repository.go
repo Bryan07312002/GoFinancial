@@ -7,16 +7,17 @@ import (
 
 type BadgeRepository interface {
 	Create(badge *models.Badge) (uint, error)
+	CreateMultiple(badges []models.Badge) ([]uint, error)
 	LinkItemToBadge(itemID uint, badgeID uint) error
-	FindByID(id uint) (models.Badge, error)
+	FindByID(id, userID uint) (models.Badge, error)
 	FindByItem(itemID uint) ([]models.Badge, error)
 	FindByTransaction(transactionID uint) ([]models.Badge, error)
 	PaginateFromUserID(
 		paginateOpt PaginateOptions,
 		userID uint,
 	) (PaginateResult[models.Badge], error)
-	CreateMultiple(badges []models.Badge) ([]uint, error)
 	GetMostExpansives(userID uint) ([]models.BadgeWithValue, error)
+	Update(badge models.Badge) error
 	Delete(id uint) error
 }
 
@@ -58,13 +59,11 @@ func (b *badgeRepository) Create(badge *models.Badge) (uint, error) {
 }
 
 func (r *badgeRepository) LinkItemToBadge(itemID uint, badgeID uint) error {
-	// Create a new ItemBadgeTable entry
 	itemBadge := ItemBadgeTable{
 		ItemID:  itemID,
 		BadgeID: badgeID,
 	}
 
-	// Insert the link into the item_badge table
 	if err := r.db.Create(&itemBadge).Error; err != nil {
 		return err
 	}
@@ -72,14 +71,20 @@ func (r *badgeRepository) LinkItemToBadge(itemID uint, badgeID uint) error {
 	return nil
 }
 
-// FindByID retrieves a badge by its ID
-func (r *badgeRepository) FindByID(id uint) (models.Badge, error) {
+func (r *badgeRepository) FindByID(id, userID uint) (models.Badge, error) {
 	var badgeTableInstance BadgeTable
-	if err := r.db.First(&badgeTableInstance, id).Error; err != nil {
+	if err := r.db.
+		Model(&BadgeTable{}).
+		Joins("JOIN item_badge ON badges.id = item_badge.badge_table_id").
+		Joins("JOIN items ON items.id = item_badge.item_table_id").
+		Joins("JOIN transactions ON items.transaction_id=transactions.id").
+		Joins("JOIN bank_accounts ON transactions.bank_account_id=bank_accounts.id").
+		Where("bank_accounts.user_id=?", userID).
+		First(&badgeTableInstance, id).Error; err != nil {
+
 		return models.Badge{}, err
 	}
 
-	// Convert the BadgeTable instance to models.Badge
 	badge := ToBadge(badgeTableInstance)
 	return badge, nil
 }
@@ -88,7 +93,8 @@ func (b *badgeRepository) FindByItem(itemID uint) ([]models.Badge, error) {
 	var badgeTables []BadgeTable
 
 	// Get all badges associated with the item
-	if err := b.db.Joins("JOIN item_badge ON badges.id = item_badge.badge_table_id").
+	if err := b.db.
+		Joins("JOIN item_badge ON badges.id = item_badge.badge_table_id").
 		Where("item_badge.item_table_id = ?", itemID).
 		Find(&badgeTables).Error; err != nil {
 		return nil, err
@@ -106,7 +112,8 @@ func (b *badgeRepository) FindByTransaction(transactionID uint) ([]models.Badge,
 	var badgeTables []BadgeTable
 
 	// Get all badges associated with the transaction
-	if err := b.db.Joins("JOIN item_badge ON badges.id = item_badge.badge_table_id").
+	if err := b.db.
+		Joins("JOIN item_badge ON badges.id = item_badge.badge_table_id").
 		Joins("JOIN items ON items.id = item_badge.item_table_id").
 		Where("items.transaction_id = ?", transactionID).
 		Find(&badgeTables).Error; err != nil {
@@ -211,6 +218,19 @@ func (b *badgeRepository) GetMostExpansives(userID uint) ([]models.BadgeWithValu
 	}
 
 	return badges[:], nil
+}
+
+func (b *badgeRepository) Update(badge *models.Badge) error {
+	result := b.db.Save(badge)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (b *badgeRepository) Delete(id uint) error {
