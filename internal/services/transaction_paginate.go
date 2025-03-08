@@ -17,7 +17,7 @@ func NewPaginateTransaction(
 func (p *PaginateTransaction) Run(
 	paginationOption db.PaginateOptions,
 	userID uint,
-) (db.PaginateResult[models.TransactionWithBadges], error) {
+) (db.PaginateResult[models.TransactionWithDetails], error) {
 	return p.transactionRepo.
-		PaginateTransactionWithBadgesFromUserID(paginationOption, userID)
+		PaginateTransactionWithDetailsFromUserID(paginationOption, userID)
 }

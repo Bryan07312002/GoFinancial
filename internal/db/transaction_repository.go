@@ -11,10 +11,10 @@ type TransactionRepository interface {
 	Create(transaction *models.Transaction) (uint, error)
 	FindByID(id uint, userID uint) (models.Transaction, error)
 	FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error)
-	PaginateTransactionWithBadgesFromUserID(
+	PaginateTransactionWithDetailsFromUserID(
 		paginteOpt PaginateOptions,
 		userID uint,
-	) (PaginateResult[models.TransactionWithBadges], error)
+	) (PaginateResult[models.TransactionWithDetails], error)
 	GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error)
 	GetCurrentBalances(userID uint) (decimal.Decimal, decimal.Decimal, error)
 	Update(transaction models.Transaction) error
@@ -150,10 +150,10 @@ func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.Tra
 	return toTransactionWithDetails(transaction), nil
 }
 
-func (b *transactionRepository) PaginateTransactionWithBadgesFromUserID(
+func (b *transactionRepository) PaginateTransactionWithDetailsFromUserID(
 	paginateOpt PaginateOptions,
 	userID uint,
-) (PaginateResult[models.TransactionWithBadges], error) {
+) (PaginateResult[models.TransactionWithDetails], error) {
 	var totalRecords int64
 	var transactions []TransactionTable
 
@@ -187,9 +187,9 @@ func (b *transactionRepository) PaginateTransactionWithBadgesFromUserID(
 
 	query.Find(&transactions)
 
-	results := make([]models.TransactionWithBadges, len(transactions))
+	results := make([]models.TransactionWithDetails, len(transactions))
 	for i, acc := range transactions {
-		results[i] = toTransactionWithBadges(acc)
+		results[i] = toTransactionWithDetails(acc)
 	}
 
 	totalPages := totalRecords / int64(paginateOpt.Take)
@@ -197,7 +197,7 @@ func (b *transactionRepository) PaginateTransactionWithBadgesFromUserID(
 		totalPages++
 	}
 
-	return PaginateResult[models.TransactionWithBadges]{
+	return PaginateResult[models.TransactionWithDetails]{
 		Data:        results,
 		Total:       uint64(totalRecords),
 		CurrentPage: paginateOpt.Page,

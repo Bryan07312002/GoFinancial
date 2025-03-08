@@ -3,6 +3,7 @@ module financial
 go 1.23.4
 
 require (
+	github.com/go-faker/faker/v4 v4.6.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
