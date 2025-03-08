@@ -1,6 +1,13 @@
-import apiClient from "../api/client";
 import type { BankAccount } from "../bankAccounts/bankAccounts";
 import type { ItemWithBadges } from "../items";
+import {
+    apiClient,
+    addPaginationQuery,
+    type PaginateOptions,
+    type PaginateResult,
+    parseDate,
+    formatDateForSaving,
+} from "../api/client";
 
 export enum PaymentMethod {
     CreditCard = "credit_card",
@@ -81,7 +88,6 @@ export const TransactionService = {
     getRecent: async (): Promise<TransactionWithBadges[]> => {
         const result = await apiClient
             .get<RecentResponse[]>("/transactions/recent");
-        console.log(result)
 
         return result.map(el => ({
             ...el,
@@ -105,42 +111,16 @@ export const TransactionService = {
             credit: parseFloat(res.credit),
         }
     },
+
+    getPaginateTransactions: async (options?: PaginateOptions): Promise<PaginateResult<TransactionWithDetails>> => {
+        return apiClient.get(addPaginationQuery('/transactions', options ?? {}))
+            .then((res: any) => ({
+                ...res,
+                data: res.data.map((transaction: any) => ({
+                    ...transaction,
+                    date: parseDate(transaction.date),
+                }))
+            }));
+    }
 }
 
-function parseDate(isoString: string) {
-    // Truncate microseconds to milliseconds and handle timezone
-    const corrected = isoString.replace(/(\.\d{3})\d+(Z|[+-]\d{2}:\d{2})/, '$1$2');
-    return new Date(corrected);
-}
-
-function formatDateForSaving(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-
-    const fractionalSeconds = `${milliseconds}000000`;
-
-    const offsetMinutes = date.getTimezoneOffset();
-    const sign = offsetMinutes > 0 ? '-' : '+'; // Invert sign for correct timezone representation
-    const absOffset = Math.abs(offsetMinutes);
-    const offsetHours = String(Math.floor(absOffset / 60)).padStart(2, '0');
-    const offsetMinutesPart = String(absOffset % 60).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${fractionalSeconds} ${sign}${offsetHours}${offsetMinutesPart}`;
-}
-
-export function formatDateShort(date: Date | undefined) {
-    if (!date) return ''
-
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${day}/${month}/${year} - ${hours}:${minutes}`;
-}

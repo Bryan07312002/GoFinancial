@@ -1,9 +1,7 @@
 <template>
-    <div class="relative w-full">
-        <!-- Date picker -->
+    <div class="relative">
         <div v-if="isOpen"
             class="absolute bg-[var(--secondary-1)] left-0 bottom-full mb-2 border border-[var(--secondary-2)] rounded-md p-4 z-10">
-            <!-- Header -->
             <div class="flex items-center justify-between mb-4">
                 <button @click="previousMonth"
                     class="p-2 cursor-pointer hover:bg-[var(--neutral-600)] hover:color-[var(--neutral-100)] rounded-md">
@@ -40,7 +38,7 @@
         </div>
 
         <!-- Input field -->
-        <Input class="w-full" :class="disabled ? 'brightness-50':''" :disabled="disabled" type="text" readonly :value="value ? formatDate(value) : 'Select date'"
+        <Input readonly :value="value ? formatDate(value) : placeholder()" :class="disabled ? 'brightness-50':''" :disabled="disabled" type="text"
             @click="onClick" />
     </div>
 </template>
@@ -49,7 +47,11 @@
 import Input from "./Input.vue";
 import { ref, computed, type Ref } from 'vue';
 
-const props = defineProps<{value: Date, disabled?: boolean}>();
+const props = defineProps<{
+    value: Date,
+    placeholder?: string,
+    disabled?: boolean,
+}>();
 const emits = defineEmits(['update:value'])
 
 const isOpen = ref(false);
@@ -121,6 +123,9 @@ const calendarDays = computed(() => {
 
     return days;
 });
+function placeholder(){
+    return props.placeholder ?? 'Select date'
+}
 
 // Navigation
 function previousMonth() {

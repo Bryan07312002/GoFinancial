@@ -11,7 +11,7 @@
 
         <div v-else class="flex flex-col shadow-lg rounded-md overflow-hidden h-full">
             <div @click="emits('openTransaction', transaction.id)" v-for="transaction, i in transactions"
-                :class="i % 2 == 0 ? '' : 'bg-[var(--neutral-800)]'"
+                :class="i % 2 == 0 ? '' : 'bg-[var(--neutral-700)]'"
                 class="cursor-pointer h-full flex justify-between p-4 hover:bg-[var(--neutral-700)] rounded-[var(--radius)]">
                 <div class="flex gap-4 items-center">
 
@@ -24,7 +24,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col items-end">
+                <div class="flex flex-col justify-center items-end">
                     <div v-if="transaction.type == TransactionType.Income" class="text-green-300">
                         R$ {{ transaction.value }}
                     </div>
@@ -42,15 +42,15 @@
 <script setup lang="ts">
 import Card from "./Card.vue";
 import Button from "./Button.vue";
-import ArrowUpIcon from "../assets/ArrowUpIcon.vue";
 import LoadingIcon from '../assets/LoadingIcon.vue';
+import ArrowUpIcon from "../assets/ArrowUpIcon.vue";
 import ArrowDownIcon from "../assets/ArrowDownIcon.vue";
-import { formatDateShort } from "../services/transactions/transaction"
 import Badge from "./Badge.vue";
 import {
     TransactionType,
     type TransactionWithBadges,
 } from '../services/transactions/transaction';
+import { formatDateShort } from "../services/api/client";
 
 defineProps<{ transactions: TransactionWithBadges[], isLoading?: boolean }>();
 const emits = defineEmits(["openTransaction", "newTransaction"]);

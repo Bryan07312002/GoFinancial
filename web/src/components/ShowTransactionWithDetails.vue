@@ -29,8 +29,9 @@
 <script setup lang="ts">
 import ShowField from './ShowField.vue';
 import TransferIcon from '../assets/TransferIcon.vue';
-import { type TransactionWithDetails, formatDateShort } from '../services/transactions/transaction';
+import { type TransactionWithDetails } from '../services/transactions/transaction';
 import ItemsTable from './ItemsTable.vue';
+import { formatDateShort } from '../services/api/client';
 
 const emits = defineEmits(["close"]);
 

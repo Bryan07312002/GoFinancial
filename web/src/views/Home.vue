@@ -26,7 +26,7 @@
                 </card>
             </div>
 
-            <card class="w-full p-6  flex flex-wrap flex-5 gap-6">
+            <card class="w-full p-6 flex flex-wrap flex-5 gap-6">
                 <most-expansive-badges class="flex-1 min-h-[300px]" :badges="mostExpansiveBadges" />
                 <recent-transfer-activities @new-transaction="handleOpenNewTransactionModal"
                     @open-transaction="handleOpenTransactionWithDetails($event)" class="flex-1 min-h-[300px]"
