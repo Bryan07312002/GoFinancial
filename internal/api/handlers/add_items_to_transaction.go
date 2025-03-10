@@ -11,8 +11,8 @@ import (
 )
 
 type NewItems struct {
-	items         []services.NewItem
-	transactionId uint
+	Items         []services.NewItem `json:"items"`
+	TransactionId uint               `json:"transaction_id"`
 }
 
 func CreateAddItemsToTransaction(con *gorm.DB) http.HandlerFunc {
@@ -26,22 +26,28 @@ func CreateAddItemsToTransaction(con *gorm.DB) http.HandlerFunc {
 
 		userID, ok := r.Context().Value(middlewares.UserKey).(uint)
 		if !ok {
-			http.Error(w, "User not found in context", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"User not found in context",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 
 		itemRepo := db.NewItemRepository(con)
 		transactionRepo := db.NewTransactionRepository(con)
+		badgeRepo := db.NewBadgeRepository(con)
 		bankAccountRepo := db.NewBankAccountRepository(con)
 		service := services.NewAddItemsToTransaction(
 			itemRepo,
+			badgeRepo,
 			transactionRepo,
 			bankAccountRepo,
 		)
 
 		if err := service.Run(
-			form.items,
-			form.transactionId,
+			form.Items,
+			form.TransactionId,
 			userID,
 		); err != nil {
 			http.Error(w, "error", http.StatusInternalServerError)

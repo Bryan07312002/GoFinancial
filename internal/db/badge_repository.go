@@ -136,7 +136,11 @@ func (b *badgeRepository) PaginateFromUserID(
 	var tableInstances []BadgeTable
 
 	query := b.db.Model(&BadgeTable{}).
-		Where("user_id = ?", userID).
+		Joins("JOIN item_badge ON badges.id = item_badge.badge_table_id").
+		Joins("JOIN items ON items.id = item_badge.item_table_id").
+		Joins("JOIN transactions ON items.transaction_id=transactions.id").
+		Joins("JOIN bank_accounts ON transactions.bank_account_id=bank_accounts.id").
+		Where("bank_accounts.user_id=?", userID).
 		Count(&count).
 		Limit(int(paginateOpt.Take)).
 		Offset(int((paginateOpt.Page - 1) * paginateOpt.Take))

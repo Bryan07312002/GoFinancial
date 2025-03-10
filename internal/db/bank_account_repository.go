@@ -98,7 +98,7 @@ func (c *bankAccountRepository) FindBankAccountByTransactionID(
 	err := c.db.
 		Raw(`
 			SELECT bank_accounts.*
-			FROM transaction_tables t
+			FROM transactions t
 			JOIN bank_accounts bank_accounts ON t.bank_account_id = bank_accounts.id
 			WHERE t.id = ?`, transactionID).
 		Scan(&bankAccountTableInstance).Error

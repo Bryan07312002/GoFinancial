@@ -63,7 +63,7 @@ func toTransactionWithBadges(t TransactionTable) models.TransactionWithBadges {
 }
 
 func toTransactionWithDetails(t TransactionTable) models.TransactionWithDetails {
-	var items []models.ItemWithBadges
+	items := []models.ItemWithBadges{}
 	for _, item := range t.Items {
 		var badges []models.Badge
 		for _, badge := range item.Badges {

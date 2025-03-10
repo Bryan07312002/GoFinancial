@@ -52,6 +52,10 @@ func (i *itemRepository) Create(item models.Item) (uint, error) {
 }
 
 func (i *itemRepository) CreateMultiple(items []models.Item) ([]uint, error) {
+	if len(items) == 0 {
+		return []uint{}, nil
+	}
+
 	// Convert the slice of models.Item to a slice of ItemTable
 	var itemTableInstances []ItemTable
 	for _, item := range items {
@@ -59,9 +63,9 @@ func (i *itemRepository) CreateMultiple(items []models.Item) ([]uint, error) {
 	}
 
 	// Insert all items into the database at once
-	err := i.db.Create(&itemTableInstances).Error
-	if err != nil {
-		return nil, err
+	result := i.db.Create(&itemTableInstances).Debug()
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	// Extract the IDs of the created items
