@@ -29,8 +29,8 @@ export type Transaction = {
     credit: boolean;
     value: number;
     date: Date;
-    cardId: number | null;
-    bankAccountId: number;
+    card_id: number | null;
+    bank_account_id: number;
 }
 
 export type TransactionWithDetails = Transaction & {
@@ -78,8 +78,8 @@ export const TransactionService = {
             credit: transaction.credit,
             value: transaction.value,
             date: formatDateForSaving(transaction.date),
-            bank_account_id: transaction.bankAccountId,
-            card_id: transaction.cardId,
+            bank_account_id: transaction.bank_account_id,
+            card_id: transaction.card_id,
         };
 
         await apiClient.post<void>("/transactions", newTransaction);
@@ -119,8 +119,24 @@ export const TransactionService = {
                 data: res.data.map((transaction: any) => ({
                     ...transaction,
                     date: parseDate(transaction.date),
+                    value: parseFloat(transaction.value)
                 }))
             }));
-    }
+    },
+
+    updateTransaction: async (transaction: Transaction) => {
+        const newTransaction: NewTransactionRequest = {
+            type: transaction.type,
+            method: transaction.method,
+            establishment: transaction.establishment,
+            credit: transaction.credit,
+            value: transaction.value,
+            date: formatDateForSaving(transaction.date),
+            bank_account_id: transaction.bank_account_id,
+            card_id: transaction.card_id,
+        };
+
+        await apiClient.patch<void>(`/transactions/${transaction.id}`, newTransaction);
+    },
 }
 

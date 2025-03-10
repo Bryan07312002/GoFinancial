@@ -12,7 +12,7 @@
 import Error from "./Error.vue";
 
 defineProps<{
-    value: string,
+    value: string | number,
     label?: string,
     placeholder?: string,
     readonly?: boolean,

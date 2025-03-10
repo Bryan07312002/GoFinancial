@@ -8,10 +8,10 @@
         </div>
 
         <div class="flex gap-4">
-            <drop-down-input :value="''" :options="fields" placeholder="Order by" />
+            <drop-down-input v-model:value="paginateOptions.sort_by" :options="fields" placeholder="Order by" />
 
             <div class="flex gap-2 justify-center items-center">
-                <drop-down-input :value="''" :options="fields" placeholder="field" />
+                <drop-down-input value="''" :options="fields" placeholder="field" />
                 <b>:</b>
                 <Input :value="''" />
             </div>
@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { type TransactionWithDetails, TransactionType } from '../services/transactions/transaction';
-import { formatDateShort, type PaginateResult } from '../services/api/client';
+import { formatDateShort, type PaginateOptions, type PaginateResult } from '../services/api/client';
 import DatePickerInput from './DatePickerInput.vue';
 import ArrowUpIcon from '../assets/ArrowUpIcon.vue';
 import ArrowDownIcon from '../assets/ArrowDownIcon.vue';
@@ -105,13 +105,34 @@ import { type Ref, ref } from 'vue';
 import Card from './Card.vue';
 
 defineProps<{
-    transactions: PaginateResult<TransactionWithDetails> | null,
     isLoding: boolean,
+    transactions: PaginateResult<TransactionWithDetails> | null,
 }>();
-const emits = defineEmits(["openTransaction", "nextPage", "previousPage"]);
+
+const emits = defineEmits([
+    "openTransaction",
+    "nextPage",
+    "previousPage",
+    "search",
+    "update:paginateOptions",
+]);
+
+const paginateOptions: Ref<PaginateOptions> = ref({
+    page: 1,
+    take: 10,
+    sort_by: "date",
+    sort_desc: false,
+});
+
 const fields: Ref<
-    (string | { value: string | number, label: string, disabled?: boolean })[]
-> = ref([{ label: '', value: '' }])
+    { value: string | number, name: string, }[]
+> = ref([
+    { name: 'id', value: 'id' },
+    { name: 'establishment', value: 'establishment' },
+    { name: 'type', value: 'type' },
+    { name: 'value', value: 'value' },
+    { name: 'Bank Account', value: 'bank_account' },
+])
 
 function formatDate(date: Date) {
     const today = new Date();

@@ -13,10 +13,13 @@
 
         <div class="h-[1px] mb-1 w-full bg-[var(--neutral-600)]" />
 
-        <transaction-form v-model:transactions-with-details="newTransaction" />
+        <transaction-form v-model:transactions-with-details="updated" />
 
         <div class="">
-            <items-table v-model:new-item="newItem" :items="items" />
+            {{ toDeleteItems }}
+            <items-table v-model:delete-items="toDeleteItems" edit-mode class="mb-4" v-model:new-item="newItem"
+                :items="transaction.items" :added-items="itemsToSave" :badge-options="badges" />
+
             <div v-if="newItem == null" @click="openNewItem"
                 class="mx-auto p-2 w-8 h-8 flex justify-center items-center rounded-lg bg-[var(--primary)]">+</div>
             <div @click="handleAddItem" v-else
@@ -34,58 +37,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, type Ref } from 'vue';
 import Button from './Button.vue';
-import ArrowLeftRight from '../assets/ArrowLeftRight.vue';
 import ItemsTable from './ItemsTable.vue';
+import { ItemService, type ItemWithBadges } from '../services/items';
 import TransactionForm from './TransactionForm.vue';
-import {
-    TransactionType,
-    PaymentMethod,
-    TransactionService,
-    type TransactionWithDetails,
-} from '../services/transactions/transaction';
+import { ref, onMounted, computed, type Ref } from 'vue';
+import ArrowLeftRight from '../assets/ArrowLeftRight.vue';
 import { BankAccountService, type BankAccount } from '../services/bankAccounts/bankAccounts';
-import type { Item, ItemWithBadges } from '../services/items';
+import { TransactionService, type Badge, type TransactionWithDetails, } from '../services/transactions/transaction';
+import { BadgeService } from '../services/badges/badges';
 
-defineProps<{
+const props = defineProps<{
     shouldHaveCloseButton?: boolean,
+    transaction: Omit<TransactionWithDetails, "bank_account" | "id">
+    update?: number;
 }>();
 
-const newTransaction: Ref<Omit<TransactionWithDetails, "bank_account" | "id">> = ref({
-    type: TransactionType.Expense,
-    method: PaymentMethod.DebitCard,
-    establishment: '',
-    credit: false,
-    value: 0,
-    date: new Date(),
-    cardId: null,
-    bankAccountId: 1,
-    items: [] as ItemWithBadges[],
-});
+const updated = ref({ ...props.transaction });
 
+type newItem = Omit<ItemWithBadges, "id" | "transaction_id">
 
-const newItem: Ref<Omit<Item, "id" | "transaction_id"> | null> = ref(null);
+const newItem: Ref<newItem | null> = ref(null);
+const itemsToSave: Ref<newItem[]> = ref([]);
 
-const itemsToSave = ref([]);
-
-const items = computed(() => [
-    ...newTransaction.value.items,
-    ...itemsToSave.value
-])
-
-function openNewItem() {
-    newItem.value = {
-        name: "",
-        value: 0,
-        quantity: 0,
-    };
-}
-
-function handleAddItem() {
-    if (newItem.value != null)
-        itemsToSave.value.push({ ...newItem.value })
-}
+const toDeleteItems: Ref<number[]> = ref([]);
 
 const emits = defineEmits([
     'close',
@@ -93,25 +68,60 @@ const emits = defineEmits([
     'created',
 ]);
 
+function openNewItem() {
+    newItem.value = {
+        name: "",
+        value: 0,
+        quantity: 0,
+        badges: [],
+    };
+}
+
+function handleAddItem() {
+    if (newItem.value != null)
+        itemsToSave.value.push({ ...newItem.value })
+
+    newItem.value = null
+}
+
 const isLoading = ref(false);
 const bankAccounts: Ref<BankAccount[]> = ref([]);
+
 const bankAccountsOptions = computed(() =>
     bankAccounts.value.map(account => ({ name: account.name, value: account.id })));
 
 onMounted(() => {
-    getBankAccounts('');
+    getBankAccounts("");
+    getBadges("");
 });
 
+const isBadgeLoading = ref(false);
+const badges: Ref<{ name: string, value: Badge }[]> = ref([]);
+
 // TODO: apply pagination find here
-async function getBankAccounts(search: string) {
+async function getBadges(_: string) {
+    badges.value = (await BadgeService.getPaginate()).data
+        .map(badge => ({ name: badge.name, value: badge }));
+}
+
+// TODO: apply pagination find here
+async function getBankAccounts(_: string) {
     bankAccounts.value = (await BankAccountService.getPaginate(0, 0)).data;
 }
 
 async function handleSave() {
-    isLoading.value = true;
-    await TransactionService.create({ ...newTransaction.value });
-    isLoading.value = false;
+    if (props.update) {
+        //await TransactionService.updateTransaction({
+        //    id: props.update,
+        //    ...updated.value,
+        //})
 
-    emits("created")
+        await ItemService.addMultiplesToTransaction(
+            props.update,
+            itemsToSave.value,
+        )
+
+        toDeleteItems.value.forEach(async item => await ItemService.delete(item))
+    }
 }
 </script>
