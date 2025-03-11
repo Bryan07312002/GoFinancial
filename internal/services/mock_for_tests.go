@@ -52,7 +52,7 @@ func (m *UserRepositoryMock) Delete(id uint) error {
 type BankAccountRepositoryMock struct {
 	CreateFunc func(bankAccount models.BankAccount) (uint, error)
 
-	FindByIDFunc                       func(ID uint) (models.BankAccount, error)
+	FindByIDFunc                       func(ID, userId uint) (models.BankAccount, error)
 	FindBankAccountByCardIDFunc        func(cardID uint) (models.BankAccount, error)
 	FindBankAccountByTransactionIDFunc func(
 		transactionID uint) (models.BankAccount, error)
@@ -61,6 +61,7 @@ type BankAccountRepositoryMock struct {
 		paginteOpt db.PaginateOptions,
 		userID uint,
 	) (db.PaginateResult[models.BankAccount], error)
+	UpdateFunc func(bankAccount models.BankAccount) error
 	DeleteFunc func(ID uint) error
 }
 
@@ -70,8 +71,8 @@ func (b *BankAccountRepositoryMock) Create(
 }
 
 func (b *BankAccountRepositoryMock) FindByID(
-	id uint) (models.BankAccount, error) {
-	return b.FindByIDFunc(id)
+	id, usedID uint) (models.BankAccount, error) {
+	return b.FindByIDFunc(id, usedID)
 }
 
 func (b *BankAccountRepositoryMock) FindBankAccountByCardID(
@@ -82,6 +83,11 @@ func (b *BankAccountRepositoryMock) FindBankAccountByCardID(
 func (b *BankAccountRepositoryMock) FindBankAccountByTransactionID(
 	transactionID uint) (models.BankAccount, error) {
 	return b.FindBankAccountByTransactionIDFunc(transactionID)
+}
+
+func (b *BankAccountRepositoryMock) Update(
+	bankAccount models.BankAccount) error {
+	return b.UpdateFunc(bankAccount)
 }
 
 func (b *BankAccountRepositoryMock) PaginateFromUserID(
@@ -114,13 +120,13 @@ func (c *CardRepositoryMock) Delete(id uint) error {
 }
 
 type TransactionRepositoryMock struct {
-	CreateFunc                                  func(transaction *models.Transaction) (uint, error)
-	FindByIDFunc                                func(id, userID uint) (models.Transaction, error)
-	FindByIDWithDetailsFunc                     func(id, userID uint) (models.TransactionWithDetails, error)
-	PaginateTransactionWithBadgesFromUserIDFunc func(
+	CreateFunc                                   func(transaction *models.Transaction) (uint, error)
+	FindByIDFunc                                 func(id, userID uint) (models.Transaction, error)
+	FindByIDWithDetailsFunc                      func(id, userID uint) (models.TransactionWithDetails, error)
+	PaginateTransactionWithDetailsFromUserIDFunc func(
 		paginteOpt db.PaginateOptions,
 		userID uint,
-	) (db.PaginateResult[models.TransactionWithBadges], error)
+	) (db.PaginateResult[models.TransactionWithDetails], error)
 	GetRecentTransactionsFunc func(userID uint) ([]models.TransactionWithBadges, error)
 	GetCurrentBalancesFunc    func(userID uint) (decimal.Decimal, decimal.Decimal, error)
 	UpdateFunc                func(t models.Transaction) error
@@ -151,11 +157,11 @@ func (t *TransactionRepositoryMock) FindByID(id, userID uint) (models.Transactio
 	return t.FindByIDFunc(id, userID)
 }
 
-func (t *TransactionRepositoryMock) PaginateTransactionWithBadgesFromUserID(
+func (t *TransactionRepositoryMock) PaginateTransactionWithDetailsFromUserID(
 	paginateOpt db.PaginateOptions,
 	userID uint,
-) (db.PaginateResult[models.TransactionWithBadges], error) {
-	return t.PaginateTransactionWithBadgesFromUserID(paginateOpt, userID)
+) (db.PaginateResult[models.TransactionWithDetails], error) {
+	return t.PaginateTransactionWithDetailsFromUserIDFunc(paginateOpt, userID)
 }
 
 func (t *TransactionRepositoryMock) Create(transaction *models.Transaction) (uint, error) {

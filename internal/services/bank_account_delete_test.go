@@ -23,7 +23,7 @@ func TestDeleteBankAccountService_Run(t *testing.T) {
 	t.Run("successful bank account deletion", func(t *testing.T) {
 		service, bankAccMock := generateDeleteBankAccountService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -47,7 +47,7 @@ func TestDeleteBankAccountService_Run(t *testing.T) {
 		service, bankAccMock := generateDeleteBankAccountService()
 
 		expectedErr := errors.New("not found")
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, UserID uint) (models.BankAccount, error) {
 			return models.BankAccount{}, expectedErr
 		}
 
@@ -65,7 +65,7 @@ func TestDeleteBankAccountService_Run(t *testing.T) {
 	t.Run("unauthorized user", func(t *testing.T) {
 		service, bankAccMock := generateDeleteBankAccountService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, UserID  uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID + 1}, nil
 		}
 
@@ -88,7 +88,7 @@ func TestDeleteBankAccountService_Run(t *testing.T) {
 	t.Run("error during deletion", func(t *testing.T) {
 		service, bankAccMock := generateDeleteBankAccountService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 

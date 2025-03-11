@@ -29,7 +29,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("successful expense transaction creation", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -70,7 +70,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("successful transfer transaction", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -105,7 +105,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("should return error if payment method is invalid", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -132,7 +132,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("should set default values when not provided", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -161,7 +161,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("should save with custom date value", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -187,7 +187,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("invalid transaction type", func(t *testing.T) {
 		service, bankAccMock, _ := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
@@ -206,7 +206,7 @@ func TestCreateTransactionService(t *testing.T) {
 	t.Run("decimal value handling", func(t *testing.T) {
 		service, bankAccMock, txMock := generateCreateTransactionService()
 
-		bankAccMock.FindByIDFunc = func(id uint) (models.BankAccount, error) {
+		bankAccMock.FindByIDFunc = func(id, userID uint) (models.BankAccount, error) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
