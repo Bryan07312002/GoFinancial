@@ -87,6 +87,7 @@ function handleAddItem() {
 const isLoading = ref(false);
 const bankAccounts: Ref<BankAccount[]> = ref([]);
 
+// TODO: add loading for bankAccounts
 const bankAccountsOptions = computed(() =>
     bankAccounts.value.map(account => ({ name: account.name, value: account.id })));
 
@@ -95,6 +96,7 @@ onMounted(() => {
     getBadges("");
 });
 
+// TODO: add loading for badges
 const isBadgeLoading = ref(false);
 const badges: Ref<{ name: string, value: Badge }[]> = ref([]);
 
@@ -111,10 +113,10 @@ async function getBankAccounts(_: string) {
 
 async function handleSave() {
     if (props.update) {
-        //await TransactionService.updateTransaction({
-        //    id: props.update,
-        //    ...updated.value,
-        //})
+        await TransactionService.updateTransaction({
+            id: props.update,
+            ...updated.value,
+        })
 
         await ItemService.addMultiplesToTransaction(
             props.update,
