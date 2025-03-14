@@ -123,7 +123,7 @@ func (c *transactionRepository) FindByID(id uint, userID uint) (models.Transacti
 
 	if err := c.db.
 		Model(&TransactionTable{}).
-		Joins("bank_accounts ON transactions.bank_account_id=bank_accounts.id").
+		Joins("JOIN bank_accounts ON transactions.bank_account_id=bank_accounts.id").
 		Where("bank_accounts.user_id=?", userID).
 		First(&transactionTableInstance, id).Error; err != nil {
 
