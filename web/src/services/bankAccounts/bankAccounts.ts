@@ -1,4 +1,9 @@
-import apiClient from "../api/client";
+import {
+    apiClient,
+    addPaginationQuery,
+    type PaginateOptions,
+    type PaginateResult,
+} from "../api/client";
 
 export type BankAccount = {
     id: number;
@@ -13,8 +18,10 @@ export type CreateBankAccount = {
 }
 
 export const BankAccountService = {
-    getPaginate: async (page: number, page_size: number): Promise<PaginateResult<BankAccount>> => {
-        const bankAccounts = await apiClient.get('/bank_accounts');
+    getPaginate: async (paginateOpt: PaginateOptions): Promise<PaginateResult<BankAccount>> => {
+        const bankAccounts = await apiClient
+            .get(addPaginationQuery('/bank_accounts', paginateOpt));
+
         return bankAccounts as any;
     },
 

@@ -43,7 +43,7 @@
                 <td class="pr-3"><Input v-model:value="newItem.name" /></td>
                 <td class="pr-3"><Input v-model:value="newItem.quantity" /></td>
                 <td class="pr-3">
-                    <select-multiple-lazy-drop-down v-model:value="newItem.badges" v-if="badgeOptions"
+                    <select-multiple-lazy-drop-down @search="emits('searcBadges', $event)" v-model:value="newItem.badges" v-if="badgeOptions"
                         :options="badgeOptions" />
                 </td>
                 <td class="pr-3"><monetary-input v-model:value="newItem.value" /></td>
@@ -74,7 +74,11 @@ const props = defineProps<{
     deleteItems?: number[],
 }>();
 
-const emits = defineEmits(["update:deleteItems", "update:addedItem"])
+const emits = defineEmits([
+    "update:deleteItems",
+    "update:addedItem",
+    "searcBadges",
+])
 
 function lineColor(i: number) {
     let classes = "";

@@ -3,10 +3,10 @@ import type { ItemWithBadges } from "../items";
 import {
     apiClient,
     addPaginationQuery,
-    type PaginateOptions,
-    type PaginateResult,
     parseDate,
     formatDateForSaving,
+    type PaginateResult,
+    type PaginateOptionsWithTime,
 } from "../api/client";
 
 export enum PaymentMethod {
@@ -112,7 +112,7 @@ export const TransactionService = {
         }
     },
 
-    getPaginateTransactions: async (options?: PaginateOptions): Promise<PaginateResult<TransactionWithDetails>> => {
+    getPaginateTransactions: async (options?: PaginateOptionsWithTime): Promise<PaginateResult<TransactionWithDetails>> => {
         return apiClient.get(addPaginationQuery('/transactions', options ?? {}))
             .then((res: any) => ({
                 ...res,

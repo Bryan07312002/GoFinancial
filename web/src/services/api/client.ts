@@ -14,21 +14,28 @@ export type PaginateOptions = {
     take?: number,
     sort_by?: string,
     sort_desc?: boolean,
+}
+
+export type PaginateOptionsWithTime = PaginateOptions & {
     start?: string,
     finish?: string,
 }
 
 export function addPaginationQuery(
     url: string,
-    options: PaginateOptions,
+    options: PaginateOptions | PaginateOptionsWithTime,
 ): string {
     if (!url.includes('?'))`${url}?`
     if (options.page) url = `${url}&page=${options.page}`
     if (options.take) url = `${url}&take=${options.take}`
     if (options.sort_by) url = `${url}&sort_by=${options.sort_by}`
     if (options.sort_desc) url = `${url}&sort_desc=${options.sort_desc}`
-    if (options.finish) url = `${url}&finish=${options.finish}`
-    if (options.start) url = `${url}&finish=${options.start}`
+
+    if ((options as PaginateOptionsWithTime).finish)
+        url = `${url}&finish=${(options as PaginateOptionsWithTime).finish}`
+
+    if ((options as PaginateOptionsWithTime).start)
+        url = `${url}&finish=${(options as PaginateOptionsWithTime).start}`
 
     return url
 }
