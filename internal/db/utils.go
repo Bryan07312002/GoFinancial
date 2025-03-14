@@ -12,6 +12,10 @@ type PaginateOptions struct {
 	Take     uint
 	SortBy   string
 	SortDesc bool
+}
+
+type PaginateOptionsWithTimeWindowSearch struct {
+	PaginateOptions
 	TimeWindowSearch
 }
 

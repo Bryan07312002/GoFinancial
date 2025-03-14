@@ -24,7 +24,10 @@ func CreatePaginateTransaction(con *gorm.DB) http.HandlerFunc {
 		transactionRepo := db.NewTransactionRepository(con)
 		service := services.NewPaginateTransaction(transactionRepo)
 
-		result, err := service.Run(extractPaginationOptions(r), userID)
+		result, err := service.Run(
+			extractPaginateOptionsWithTimeWindowSearch(r),
+			userID,
+		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

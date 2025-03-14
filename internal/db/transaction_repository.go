@@ -12,7 +12,7 @@ type TransactionRepository interface {
 	FindByID(id uint, userID uint) (models.Transaction, error)
 	FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error)
 	PaginateTransactionWithDetailsFromUserID(
-		paginteOpt PaginateOptions,
+		paginteOpt PaginateOptionsWithTimeWindowSearch,
 		userID uint,
 	) (PaginateResult[models.TransactionWithDetails], error)
 	GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error)
@@ -151,7 +151,7 @@ func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.Tra
 }
 
 func (b *transactionRepository) PaginateTransactionWithDetailsFromUserID(
-	paginateOpt PaginateOptions,
+	paginateOpt PaginateOptionsWithTimeWindowSearch,
 	userID uint,
 ) (PaginateResult[models.TransactionWithDetails], error) {
 	var totalRecords int64

@@ -15,7 +15,7 @@ func NewPaginateTransaction(
 }
 
 func (p *PaginateTransaction) Run(
-	paginationOption db.PaginateOptions,
+	paginationOption db.PaginateOptionsWithTimeWindowSearch,
 	userID uint,
 ) (db.PaginateResult[models.TransactionWithDetails], error) {
 	return p.transactionRepo.
