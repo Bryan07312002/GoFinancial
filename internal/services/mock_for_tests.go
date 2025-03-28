@@ -26,6 +26,7 @@ func (m *HashRepositoryMock) Compare(s1, s2 string) bool {
 //	DB repositories
 //
 // -------------------------------
+
 type UserRepositoryMock struct {
 	CreateFunc     func(user models.User) (uint, error)
 	FindByIdFunc   func(id uint) (models.User, error)
@@ -124,7 +125,7 @@ type TransactionRepositoryMock struct {
 	FindByIDFunc                                 func(id, userID uint) (models.Transaction, error)
 	FindByIDWithDetailsFunc                      func(id, userID uint) (models.TransactionWithDetails, error)
 	PaginateTransactionWithDetailsFromUserIDFunc func(
-		paginteOpt db.PaginateOptions,
+		paginteOpt db.PaginateOptionsWithTimeWindowSearch,
 		userID uint,
 	) (db.PaginateResult[models.TransactionWithDetails], error)
 	GetRecentTransactionsFunc func(userID uint) ([]models.TransactionWithBadges, error)
@@ -141,15 +142,22 @@ func (t *TransactionRepositoryMock) Update(transaction models.Transaction) error
 	return t.UpdateFunc(transaction)
 }
 
-func (t *TransactionRepositoryMock) FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error) {
+func (t *TransactionRepositoryMock) FindByIDWithDetails(
+	id,
+	userID uint,
+) (models.TransactionWithDetails, error) {
 	return t.FindByIDWithDetailsFunc(id, userID)
 }
 
-func (t *TransactionRepositoryMock) GetRecentTransactions(userID uint) ([]models.TransactionWithBadges, error) {
+func (t *TransactionRepositoryMock) GetRecentTransactions(
+	userID uint,
+) ([]models.TransactionWithBadges, error) {
 	return t.GetRecentTransactionsFunc(userID)
 }
 
-func (t *TransactionRepositoryMock) GetCurrentBalances(userID uint) (decimal.Decimal, decimal.Decimal, error) {
+func (t *TransactionRepositoryMock) GetCurrentBalances(
+	userID uint,
+) (decimal.Decimal, decimal.Decimal, error) {
 	return t.GetCurrentBalancesFunc(userID)
 }
 
@@ -158,13 +166,15 @@ func (t *TransactionRepositoryMock) FindByID(id, userID uint) (models.Transactio
 }
 
 func (t *TransactionRepositoryMock) PaginateTransactionWithDetailsFromUserID(
-	paginateOpt db.PaginateOptions,
+	paginateOpt db.PaginateOptionsWithTimeWindowSearch,
 	userID uint,
 ) (db.PaginateResult[models.TransactionWithDetails], error) {
 	return t.PaginateTransactionWithDetailsFromUserIDFunc(paginateOpt, userID)
 }
 
-func (t *TransactionRepositoryMock) Create(transaction *models.Transaction) (uint, error) {
+func (t *TransactionRepositoryMock) Create(
+	transaction *models.Transaction,
+) (uint, error) {
 	return t.CreateFunc(transaction)
 }
 
