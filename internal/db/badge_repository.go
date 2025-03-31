@@ -25,7 +25,7 @@ type badgeRepository struct {
 	db *gorm.DB
 }
 
-func ToBadgeTable(model models.Badge) BadgeTable {
+func toBadgeTable(model models.Badge) BadgeTable {
 	return BadgeTable{
 		ID:    model.ID,
 		Name:  model.Name,
@@ -33,7 +33,7 @@ func ToBadgeTable(model models.Badge) BadgeTable {
 	}
 }
 
-func ToBadge(table BadgeTable) models.Badge {
+func toBadge(table BadgeTable) models.Badge {
 	return models.Badge{
 		ID:    table.ID,
 		Name:  table.Name,
@@ -85,7 +85,7 @@ func (r *badgeRepository) FindByID(id, userID uint) (models.Badge, error) {
 		return models.Badge{}, err
 	}
 
-	badge := ToBadge(badgeTableInstance)
+	badge := toBadge(badgeTableInstance)
 	return badge, nil
 }
 
@@ -102,7 +102,7 @@ func (b *badgeRepository) FindByItem(itemID uint) ([]models.Badge, error) {
 
 	var badges []models.Badge
 	for _, badgeTable := range badgeTables {
-		badges = append(badges, ToBadge(badgeTable))
+		badges = append(badges, toBadge(badgeTable))
 	}
 
 	return badges, nil
@@ -122,7 +122,7 @@ func (b *badgeRepository) FindByTransaction(transactionID uint) ([]models.Badge,
 
 	var badges []models.Badge
 	for _, badgeTable := range badgeTables {
-		badges = append(badges, ToBadge(badgeTable))
+		badges = append(badges, toBadge(badgeTable))
 	}
 
 	return badges, nil
@@ -159,7 +159,7 @@ func (b *badgeRepository) PaginateFromUserID(
 
 	results := make([]models.Badge, len(tableInstances))
 	for i, acc := range tableInstances {
-		results[i] = ToBadge(acc)
+		results[i] = toBadge(acc)
 	}
 
 	totalPages := count / int64(paginateOpt.Take)
@@ -181,7 +181,7 @@ func (b *badgeRepository) CreateMultiple(badges []models.Badge) ([]uint, error) 
 	var badgeIDs []uint
 
 	for _, badge := range badges {
-		badgeTableInstances = append(badgeTableInstances, ToBadgeTable(badge))
+		badgeTableInstances = append(badgeTableInstances, toBadgeTable(badge))
 	}
 
 	if err := b.db.Create(&badgeTableInstances).Error; err != nil {

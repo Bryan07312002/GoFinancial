@@ -54,7 +54,7 @@ func toTransactionWithBadges(t TransactionTable) models.TransactionWithBadges {
 		for _, badge := range item.Badges {
 			transactionWithBadges.Badges = append(
 				transactionWithBadges.Badges,
-				ToBadge(badge),
+				toBadge(badge),
 			)
 		}
 	}
@@ -235,7 +235,7 @@ func (b *transactionRepository) GetRecentTransactions(
 			for _, badge := range item.Badges {
 				transactionWithBadges.Badges = append(
 					transactionWithBadges.Badges,
-					ToBadge(badge),
+					toBadge(badge),
 				)
 			}
 		}

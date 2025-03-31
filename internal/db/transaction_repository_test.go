@@ -26,8 +26,7 @@ func generateTestTransactionRepository(t *testing.T) TransactionRepository {
 		t.Fatalf("failed to connect to in-memory database: %v", err)
 	}
 
-	// Migrate the schema
-	err = conn.AutoMigrate(&TransactionTable{})
+	err = applyAutoMigrate(conn)
 	if err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}

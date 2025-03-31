@@ -73,7 +73,7 @@ func TestBankAccountRepository(t *testing.T) {
 			t.Errorf("expected no error, got %v", err)
 		}
 
-		foundAccount, err := bankAccountRepo.FindByID(bankAccountID)
+		foundAccount, err := bankAccountRepo.FindByID(bankAccountID, 1)
 		if err != nil {
 			t.Errorf("expected no error, got %v", err)
 		}
@@ -106,7 +106,7 @@ func TestBankAccountRepository(t *testing.T) {
 			t.Errorf("expected no error, got %v", err)
 		}
 
-		_, err = bankAccountRepo.FindByID(bankAccountID)
+		_, err = bankAccountRepo.FindByID(bankAccountID, 1)
 		if err == nil {
 			t.Error("expected error when finding deleted bank account, got nil")
 		}

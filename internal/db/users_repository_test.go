@@ -1,18 +1,17 @@
-package db_test
+package db
 
 import (
-	"financial/internal/db"
 	"financial/internal/models"
-	"testing"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"testing"
 )
 
-func generateTestUserRepository(t *testing.T) db.UserRepository {
+func generateTestUserRepository(t *testing.T) UserRepository {
 	conn, err := gorm.Open(sqlite.Open("file::memory:?"),
 		&gorm.Config{
 			Logger: logger.New(
@@ -28,16 +27,12 @@ func generateTestUserRepository(t *testing.T) db.UserRepository {
 		t.Fatalf("failed to connect to in-memory database: %v", err)
 	}
 
-	// Migrate the schema for testing
-	err = conn.AutoMigrate(
-		&db.UserTable{}, // Make sure to include all tables in migration
-	)
-
+	err = applyAutoMigrate(conn)
 	if err != nil {
 		t.Fatalf("failed to migrate database schema: %v", err)
 	}
 
-	return db.NewUserRepository(conn)
+	return NewUserRepository(conn)
 }
 
 func TestUserRepository(t *testing.T) {

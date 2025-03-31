@@ -27,12 +27,8 @@ func generateTestItemRepository(t *testing.T) ItemRepository {
 		t.Fatalf("failed to connect to in-memory database: %v", err)
 	}
 
-	err = conn.AutoMigrate(
-		&ItemTable{},
-		&BadgeTable{},
-		&ItemBadgeTable{},
-	)
 
+	err = applyAutoMigrate(conn)
 	if err != nil {
 		t.Fatalf("failed to migrate database schema: %v", err)
 	}

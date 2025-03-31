@@ -28,14 +28,8 @@ func generateTestBadgeRepository(t *testing.T) (BadgeRepository, *gorm.DB) {
 	}
 
 	// Migrate the schema for BadgeTable, ItemTable, and ItemBadgeTable
-	err = conn.AutoMigrate(
-		&UserTable{},
-		&BankAccountTable{},
-		&BadgeTable{},
-		&ItemTable{},
-		&ItemBadgeTable{},
-	)
-	if err != nil {
+	err = applyAutoMigrate(conn)
+    if err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}
 
@@ -290,7 +284,7 @@ func TestBadgeRepository(t *testing.T) {
 		}
 
 		// Try to find the deleted badge (should return an error)
-		_, err = badgeRepo.FindByID(badgeID)
+		_, err = badgeRepo.FindByID(badgeID, 1)
 		if err == nil {
 			t.Error("expected error when finding deleted badge, got nil")
 		}
@@ -319,7 +313,7 @@ func TestBadgeRepository(t *testing.T) {
 		}
 
 		// Find the badge by ID
-		foundBadge, err := badgeRepo.FindByID(badgeID)
+		foundBadge, err := badgeRepo.FindByID(badgeID, 1)
 		if err != nil {
 			t.Errorf("expected no error, got %v", err)
 		}
@@ -337,7 +331,7 @@ func TestBadgeRepository(t *testing.T) {
 		badgeRepo, _ := generateTestBadgeRepository(t)
 
 		// Try to find a badge that doesn't exist
-		_, err := badgeRepo.FindByID(999) // Assume this ID doesn't exist
+		_, err := badgeRepo.FindByID(999, 1) // Assume this ID doesn't exist
 		if err == nil {
 			t.Error("expected error when finding badge with non-existent ID, got nil")
 		}
