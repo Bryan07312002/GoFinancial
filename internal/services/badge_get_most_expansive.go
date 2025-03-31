@@ -5,15 +5,19 @@ import (
 	"financial/internal/models"
 )
 
-type MostExpansiveBadges struct {
+type MostExpansiveBadges interface {
+	Run(userID uint) ([]models.BadgeWithValue, error)
+}
+
+type mostExpansiveBadges struct {
 	badgeRepo db.BadgeRepository
 }
 
 func NewMostExpansiveBadges(badgeRepo db.BadgeRepository) MostExpansiveBadges {
-	return MostExpansiveBadges{badgeRepo}
+	return &mostExpansiveBadges{badgeRepo}
 
 }
 
-func (m *MostExpansiveBadges) Run(userID uint) ([]models.BadgeWithValue, error) {
+func (m *mostExpansiveBadges) Run(userID uint) ([]models.BadgeWithValue, error) {
 	return m.badgeRepo.GetMostExpansives(userID)
 }

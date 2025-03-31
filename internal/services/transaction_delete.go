@@ -5,7 +5,11 @@ import (
 	"financial/internal/db"
 )
 
-type DeleteTransaction struct {
+type DeleteTransaction interface {
+	Run(transactionId, userId uint) error
+}
+
+type deleteTransaction struct {
 	bankAccountRepo db.BankAccountRepository
 	transactionRepo db.TransactionRepository
 }
@@ -14,11 +18,11 @@ func NewDeleteTransaction(
 	bankAccountRepo db.BankAccountRepository,
 	transactionRepo db.TransactionRepository,
 ) DeleteTransaction {
-	return DeleteTransaction{bankAccountRepo, transactionRepo}
+	return &deleteTransaction{bankAccountRepo, transactionRepo}
 }
 
 // TODO: check date of transaction and update all balances after the transaction
-func (d *DeleteTransaction) Run(transactionId, userId uint) error {
+func (d *deleteTransaction) Run(transactionId, userId uint) error {
 	bankAccount, err := d.bankAccountRepo.FindBankAccountByTransactionID(
 		transactionId)
 

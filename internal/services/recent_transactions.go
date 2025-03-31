@@ -5,15 +5,19 @@ import (
 	"financial/internal/models"
 )
 
-type RecentTransactions struct {
+type RecentTransactions interface {
+	Run(userId uint) ([]models.TransactionWithBadges, error)
+}
+
+type recentTransactions struct {
 	transactionRepo db.TransactionRepository
 }
 
 func NewRecentTransactions(
 	transactionRepo db.TransactionRepository) RecentTransactions {
-	return RecentTransactions{transactionRepo}
+	return &recentTransactions{transactionRepo}
 }
 
-func (p *RecentTransactions) Run(userId uint) ([]models.TransactionWithBadges, error) {
+func (p *recentTransactions) Run(userId uint) ([]models.TransactionWithBadges, error) {
 	return p.transactionRepo.GetRecentTransactions(userId)
 }

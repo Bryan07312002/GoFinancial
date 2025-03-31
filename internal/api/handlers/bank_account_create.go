@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"financial/internal/api/router/middlewares"
-	"financial/internal/db"
 	"financial/internal/services"
 
 	"encoding/json"
-	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -15,33 +13,42 @@ type CreateBankAccount struct {
 	Description string `json:"description"`
 }
 
-func CreateCreateBankAccountHandler(con *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var form services.CreateBankAccount
+type CreateBankAccountFactory interface {
+	CreateCreateBankAccount() services.CreateBankAccount
+}
 
-		if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+type CreateBankAccountHandler struct {
+	factory CreateBankAccountFactory
+}
 
-		userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-		if !ok {
-			http.Error(w, "User not found in context", http.StatusInternalServerError)
-			return
-		}
+func NewCreateBankAccountHandler(factory CreateBankAccountFactory) http.Handler {
+	return &CreateBankAccountHandler{factory}
+}
 
-		bankAccountRepo := db.NewBankAccountRepository(con)
-		service := services.NewCreateBankAccountService(bankAccountRepo)
+func (c *CreateBankAccountHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var form services.CreateBankAccountDto
 
-		if err := service.Run(services.CreateBankAccount{
-			UserId:      userID,
-			Name:        form.Name,
-			Description: form.Description,
-		}); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
+	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
+	if !ok {
+		http.Error(w, "User not found in context", http.StatusInternalServerError)
+		return
+	}
+
+	service := c.factory.CreateCreateBankAccount()
+
+	if err := service.Run(services.CreateBankAccountDto{
+		UserId:      userID,
+		Name:        form.Name,
+		Description: form.Description,
+	}); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

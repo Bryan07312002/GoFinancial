@@ -8,8 +8,21 @@ import (
 	"time"
 )
 
-type UpdateTransaction struct {
+type UpdateTransaction interface {
+	Run(
+		transactionID uint,
+		dto UpdateTransactionDto,
+		userID uint,
+	) error
+}
+
+type updateTransaction struct {
 	transactionRepo db.TransactionRepository
+}
+
+func NewUpdateTransaction(
+	transactionRepo db.TransactionRepository) UpdateTransaction {
+	return &updateTransaction{transactionRepo}
 }
 
 type UpdateTransactionDto struct {
@@ -22,12 +35,7 @@ type UpdateTransactionDto struct {
 	CardID        *uint            `json:"card_id,omitempty"`
 }
 
-func NewUpdateTransaction(
-	transactionRepo db.TransactionRepository) UpdateTransaction {
-	return UpdateTransaction{transactionRepo}
-}
-
-func (u *UpdateTransaction) Run(
+func (u *updateTransaction) Run(
 	transactionID uint,
 	dto UpdateTransactionDto,
 	userID uint,
@@ -37,12 +45,12 @@ func (u *UpdateTransaction) Run(
 		return err
 	}
 
-	updateTransactionFields(&transaction, &dto)
+	u.updateTransactionFields(&transaction, &dto)
 
 	return u.transactionRepo.Update(transaction)
 }
 
-func updateTransactionFields(transaction *models.Transaction, dto *UpdateTransactionDto) {
+func (u *updateTransaction) updateTransactionFields(transaction *models.Transaction, dto *UpdateTransactionDto) {
 	if dto.Type != nil {
 		transaction.Type = models.TransactionType(*dto.Type)
 	}

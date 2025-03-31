@@ -3,6 +3,7 @@ package routes
 import (
 	"financial/internal/api/handlers"
 	"financial/internal/api/router/middlewares"
+	"financial/internal/factories"
 
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
@@ -13,41 +14,39 @@ type Router struct {
 }
 
 func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
+	factory := factories.NewServiceFactory(factories.NewRepositoryFactory(dbCon))
 	r := mux.NewRouter()
 
 	r.HandleFunc("/health", handlers.HealthHandler).Methods("GET")
 
-	r.HandleFunc("/register",
-		handlers.CreateRegisterUserHandler(dbCon)).Methods("POST")
-
-	r.HandleFunc("/login",
-		handlers.CreateLoginHandler(dbCon, jwtKey)).Methods("POST")
+	r.Handle("/login", handlers.NewLoginHandler(factory)).Methods("POST")
+	r.Handle("/register", handlers.NewRegisterUserHandler(factory)).Methods("POST")
 
 	protected := r.NewRoute().Subrouter()
-	protected.Use(middlewares.CreateAuthMiddleware(jwtKey))
+	protected.Use(middlewares.CreateAuthMiddleware(factory))
 
-	protected.HandleFunc("/bank_accounts",
-		handlers.CreateCreateBankAccountHandler(dbCon)).Methods("POST")
-	protected.HandleFunc("/bank_accounts",
-		handlers.CreatePaginateBankAccountHandler(dbCon)).Methods("GET")
-	protected.HandleFunc("/bank_accounts/{id}",
-		handlers.CreateBankAccountDelete(dbCon)).Methods("DELETE")
+	protected.Handle("/bank_accounts",
+		handlers.NewCreateBankAccountHandler(factory)).Methods("POST")
+	protected.Handle("/bank_accounts",
+		handlers.NewPaginateBankAccountHandler(factory)).Methods("GET")
+	protected.Handle("/bank_accounts/{id}",
+		handlers.NewDeleteBankAccountHandler(factory)).Methods("DELETE")
 
-	protected.HandleFunc("/cards",
-		handlers.CreateCreateCard(dbCon)).Methods("POST")
+	protected.Handle("/cards",
+		handlers.NewCreateCardHandler(factory)).Methods("POST")
 
-	protected.HandleFunc("/transactions",
-		handlers.CreateCreateTransaction(dbCon)).Methods("POST")
-	protected.HandleFunc("/transactions/{id}",
-		handlers.CreateUpdateTransaction(dbCon)).Methods("PUT")
-	protected.HandleFunc("/transactions/{id}",
-		handlers.CreateUpdateTransaction(dbCon)).Methods("PATCH")
-	protected.HandleFunc("/transactions",
-		handlers.CreatePaginateTransaction(dbCon)).Methods("GET")
-	protected.HandleFunc("/transactions/recent",
-		handlers.CreateRecentTransactions(dbCon)).Methods("GET")
-	protected.HandleFunc("/transactions/balance",
-		handlers.CreateCurrentBalance(dbCon)).Methods("GET")
+	protected.Handle("/transactions",
+		handlers.NewCreateTransactionHandler(factory)).Methods("POST")
+	protected.Handle("/transactions/{id}",
+		handlers.NewUpdateTransactionHandler(factory)).Methods("PUT")
+	protected.Handle("/transactions/{id}",
+		handlers.NewUpdateTransactionHandler(factory)).Methods("PATCH")
+	protected.Handle("/transactions",
+		handlers.NewPaginateTransaction(factory)).Methods("GET")
+	protected.Handle("/transactions/recent",
+		handlers.NewRecentTransactionsHandler(factory)).Methods("GET")
+	protected.Handle("/transactions/balance",
+		handlers.NewCurrentBalanceHandler(factory)).Methods("GET")
 	protected.HandleFunc("/transactions/{id}",
 		handlers.CreateFindTransaction(dbCon)).Methods("GET")
 	protected.HandleFunc("/transactions/{id}",

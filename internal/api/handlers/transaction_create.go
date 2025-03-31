@@ -2,17 +2,18 @@ package handlers
 
 import (
 	"financial/internal/api/router/middlewares"
-	"financial/internal/db"
 	"financial/internal/services"
 
 	"encoding/json"
-	"net/http"
-
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
+	"net/http"
 )
 
-type CreateTransaction struct {
+type CreateTransactionFactory interface {
+	CreateCreateTransaction() services.CreateTransaction
+}
+
+type CreateTransactionRequest struct {
 	Type          string          `json:"type"`
 	Value         decimal.Decimal `json:"value"`
 	BankAccountID uint            `json:"bank_account_id"`
@@ -23,39 +24,41 @@ type CreateTransaction struct {
 	Method        *string         `json:"method"`
 }
 
-func CreateCreateTransaction(con *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var transaction CreateTransaction
+type CreateTransactionHandler struct {
+	factory CreateTransactionFactory
+}
 
-		if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+func NewCreateTransactionHandler(factory CreateTransactionFactory) http.Handler {
+	return &CreateTransactionHandler{factory}
+}
 
-		userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-		if !ok {
-			http.Error(w, "User not found in context", http.StatusInternalServerError)
-			return
-		}
+func (c *CreateTransactionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var transaction CreateTransactionRequest
 
-		transactionRepo := db.NewTransactionRepository(con)
-		bankAccountRepo := db.NewBankAccountRepository(con)
-		service := services.NewCreateTransactionService(
-			transactionRepo, bankAccountRepo,
-		)
-		if err := service.Run(services.CreateTransaction{
-			Type:          transaction.Type,
-			Value:         transaction.Value,
-			Establishment: transaction.Establishment,
-			BankAccountID: transaction.BankAccountID,
-			Date:          transaction.Date,
-			CardID:        transaction.CardID,
-			Credit:        transaction.Credit,
-			Method:        transaction.Method,
-		}, userID); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-
-		w.WriteHeader(http.StatusCreated)
+	if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
+	if !ok {
+		http.Error(w, "User not found in context", http.StatusInternalServerError)
+		return
+	}
+
+	service := c.factory.CreateCreateTransaction()
+	if err := service.Run(services.CreateTransactionDto{
+		Type:          transaction.Type,
+		Value:         transaction.Value,
+		Establishment: transaction.Establishment,
+		BankAccountID: transaction.BankAccountID,
+		Date:          transaction.Date,
+		CardID:        transaction.CardID,
+		Credit:        transaction.Credit,
+		Method:        transaction.Method,
+	}, userID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

@@ -6,24 +6,28 @@ import (
 	"financial/internal/models"
 )
 
-type RegisterUserService struct {
+type RegisterUser interface {
+	Run(input RegisterUserDto) error
+}
+
+type registerUser struct {
 	userRepo db.UserRepository
 	hashRepo hash.HashRepository
 }
 
-func NewRegisterUserService(
+func NewRegisterUser(
 	userRepo db.UserRepository,
 	hashRepo hash.HashRepository,
-) RegisterUserService {
-	return RegisterUserService{userRepo, hashRepo}
+) RegisterUser {
+	return &registerUser{userRepo, hashRepo}
 }
 
-type RegisterUser struct {
+type RegisterUserDto struct {
 	Name     string
 	Password string
 }
 
-func (s *RegisterUserService) Run(input RegisterUser) error {
+func (s *registerUser) Run(input RegisterUserDto) error {
 	hashedPassword, err := s.hashRepo.Hash(input.Password)
 	if err != nil {
 		return err

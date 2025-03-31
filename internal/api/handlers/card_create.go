@@ -1,31 +1,38 @@
 package handlers
 
 import (
-	"financial/internal/db"
 	"financial/internal/services"
 
 	"encoding/json"
-	"gorm.io/gorm"
 	"net/http"
 )
 
-func CreateCreateCard(dbCon *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var form services.CreateCard
+type CreateCardFactory interface {
+	CreateCreateCard() services.CreateCard
+}
 
-		if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+type CreateCardHandler struct {
+	factory CreateCardFactory
+}
 
-		cardRepo := db.NewCardRepository(dbCon)
-		service := services.NewCreateCardService(cardRepo)
+func NewCreateCardHandler(factory CreateCardFactory) http.Handler {
+	return &CreateCardHandler{factory}
+}
 
-		if err := service.Run(form); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+func (c *CreateCardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var form services.CreateCardDto
 
-		w.WriteHeader(http.StatusCreated)
+	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	service := c.factory.CreateCreateCard()
+
+	if err := service.Run(form); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

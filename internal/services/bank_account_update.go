@@ -2,13 +2,17 @@ package services
 
 import "financial/internal/db"
 
-type UpdateBankAccount struct {
+type UpdateBankAccount interface {
+	Run(bankAccountID uint, dto UpdateBankAccountDto, userID uint) error
+}
+
+type updateBankAccount struct {
 	bankAccountRepo db.BankAccountRepository
 }
 
 func NewUpdateBankAccount(
 	bankAccountRepo db.BankAccountRepository) UpdateBankAccount {
-	return UpdateBankAccount{bankAccountRepo}
+	return &updateBankAccount{bankAccountRepo}
 }
 
 type UpdateBankAccountDto struct {
@@ -16,7 +20,7 @@ type UpdateBankAccountDto struct {
 	Description *string `json:"description,omitempty"`
 }
 
-func (u *UpdateBankAccount) Run(
+func (u *updateBankAccount) Run(
 	bankAccountID uint, dto UpdateBankAccountDto, userID uint) error {
 	bankAccount, err := u.bankAccountRepo.FindByID(bankAccountID, userID)
 	if err != nil {

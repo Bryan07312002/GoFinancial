@@ -15,7 +15,11 @@ type contextKey string
 
 const UserKey contextKey = "UserID"
 
-func CreateAuthMiddleware(secretKey string) mux.MiddlewareFunc {
+type IsAuthenticatedFactory interface {
+	CreateIsAuthenticated() services.IsAuthenticated
+}
+
+func CreateAuthMiddleware(factory IsAuthenticatedFactory) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authInput := strings.Split(r.Header.Get("Authorization"), " ")
@@ -25,9 +29,9 @@ func CreateAuthMiddleware(secretKey string) mux.MiddlewareFunc {
 			}
 
 			token := authInput[1]
-			sessionRepo := sessions.NewAuthenticationRepository(secretKey)
-			service := services.NewIsAuthenticatedService(&sessionRepo)
-			userID, isAuthenticated := service.Run(sessions.Token(token))
+
+			userID, isAuthenticated := factory.CreateIsAuthenticated().
+				Run(sessions.Token(token))
 			if !isAuthenticated {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return

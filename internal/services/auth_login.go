@@ -8,18 +8,22 @@ import (
 	"errors"
 )
 
-type LoginService struct {
+type Login interface {
+	Run(form LoginForm) (sessions.Token, error)
+}
+
+type login struct {
 	userRepo db.UserRepository
 	authRepo sessions.AuthenticationRepository
 	hashRepo hash.HashRepository
 }
 
-func NewLoginService(
+func NewLogin(
 	userRepo db.UserRepository,
 	authRepo sessions.AuthenticationRepository,
 	hashRepo hash.HashRepository,
-) LoginService {
-	return LoginService{
+) Login {
+	return &login{
 		userRepo,
 		authRepo,
 		hashRepo,
@@ -35,7 +39,7 @@ var (
 	EmailOrPasswordNotMatchError = errors.New("email or password dont match with any record")
 )
 
-func (l *LoginService) Run(form LoginForm) (sessions.Token, error) {
+func (l *login) Run(form LoginForm) (sessions.Token, error) {
 	user, err := l.userRepo.FindByName(form.Name)
 	if err != nil {
 		return sessions.Token(""), EmailOrPasswordNotMatchError

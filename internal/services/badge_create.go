@@ -5,12 +5,16 @@ import (
 	"financial/internal/models"
 )
 
-type CreateBadge struct {
+type CreateBadge interface {
+	Run(badge NewBadge, userId uint) error
+}
+
+type createBadge struct {
 	badgeRepo db.BadgeRepository
 }
 
 func NewCreateBadge(badgeRepo db.BadgeRepository) CreateBadge {
-	return CreateBadge{badgeRepo}
+	return &createBadge{badgeRepo}
 }
 
 type NewBadge struct {
@@ -18,7 +22,7 @@ type NewBadge struct {
 	Color string `json:"color"`
 }
 
-func (c *CreateBadge) Run(badge NewBadge, userId uint) error {
+func (c *createBadge) Run(badge NewBadge, userId uint) error {
 	_, err := c.badgeRepo.Create(&models.Badge{
 		Name:  badge.Name,
 		Color: badge.Color,

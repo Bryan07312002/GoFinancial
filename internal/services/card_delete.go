@@ -5,7 +5,11 @@ import (
 	"financial/internal/db"
 )
 
-type DeleteCard struct {
+type DeleteCard interface {
+	Run(id, userId uint) error
+}
+
+type deleteCard struct {
 	cardRepo        db.CardRepository
 	bankAccountRepo db.BankAccountRepository
 }
@@ -14,10 +18,10 @@ func NewDeleteCard(
 	cardRepo db.CardRepository,
 	bankAccountRepo db.BankAccountRepository,
 ) DeleteCard {
-	return DeleteCard{cardRepo, bankAccountRepo}
+	return &deleteCard{cardRepo, bankAccountRepo}
 }
 
-func (d *DeleteCard) Run(id, userId uint) error {
+func (d *deleteCard) Run(id, userId uint) error {
 	bankAccountRepo, err := d.bankAccountRepo.FindBankAccountByCardID(id)
 	if err != nil {
 		return err

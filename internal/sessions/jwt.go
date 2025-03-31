@@ -2,9 +2,9 @@ package sessions
 
 import (
 	"financial/internal/models"
-	"github.com/golang-jwt/jwt/v5"
 
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
@@ -45,7 +45,7 @@ func (r *authenticationRepository) CreateToken(user models.User) (Token, error) 
 }
 
 func (r *authenticationRepository) IsAuthenticated(token Token) (uint, bool) {
-	parsedToken, err := jwt.Parse(string(token), func(t *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.Parse(string(token), func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}

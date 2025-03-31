@@ -5,7 +5,11 @@ import (
 	"financial/internal/db"
 )
 
-type DeleteItem struct {
+type DeleteItem interface {
+	Run(id uint, userId uint) error
+}
+
+type deleteItem struct {
 	bankRepo db.BankAccountRepository
 	itemRepo db.ItemRepository
 }
@@ -14,10 +18,10 @@ func NewDeleteItem(
 	itemRepo db.ItemRepository,
 	bankRepo db.BankAccountRepository,
 ) DeleteItem {
-	return DeleteItem{bankRepo, itemRepo}
+	return &deleteItem{bankRepo, itemRepo}
 }
 
-func (d *DeleteItem) Run(id uint, userId uint) error {
+func (d *deleteItem) Run(id uint, userId uint) error {
 	item, err := d.itemRepo.FindByID(id)
 	if err != nil {
 		return err

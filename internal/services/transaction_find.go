@@ -5,14 +5,18 @@ import (
 	"financial/internal/models"
 )
 
-type FindTransaction struct {
+type FindTransaction interface {
+	Run(id, userID uint) (models.TransactionWithDetails, error)
+}
+
+type findTransaction struct {
 	transactionsRepo db.TransactionRepository
 }
 
 func NewFindTransaction(transactionsRepo db.TransactionRepository) FindTransaction {
-	return FindTransaction{transactionsRepo}
+	return &findTransaction{transactionsRepo}
 }
 
-func (f *FindTransaction) Run(id, userID uint) (models.TransactionWithDetails, error) {
+func (f *findTransaction) Run(id, userID uint) (models.TransactionWithDetails, error) {
 	return f.transactionsRepo.FindByIDWithDetails(id, userID)
 }

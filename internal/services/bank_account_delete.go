@@ -5,16 +5,20 @@ import (
 	"financial/internal/db"
 )
 
-type DeleteBankAccountService struct {
+type DeleteBankAccount interface {
+	Run(id, userId uint) error
+}
+
+type deleteBankAccount struct {
 	bankAccountRepo db.BankAccountRepository
 }
 
 func NewDeleteBankAccountService(
-	bankAccountRepo db.BankAccountRepository) DeleteBankAccountService {
-	return DeleteBankAccountService{bankAccountRepo}
+	bankAccountRepo db.BankAccountRepository) DeleteBankAccount {
+	return &deleteBankAccount{bankAccountRepo}
 }
 
-func (d *DeleteBankAccountService) Run(id, userId uint) error {
+func (d *deleteBankAccount) Run(id, userId uint) error {
 	bankAccount, err := d.bankAccountRepo.FindByID(id, userId)
 	if err != nil {
 		return err

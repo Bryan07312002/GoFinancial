@@ -5,16 +5,23 @@ import (
 	"financial/internal/models"
 )
 
-type PaginateBadges struct {
+type PaginateBadges interface {
+	Run(
+		paginateOpt db.PaginateOptions,
+		userID uint,
+	) (db.PaginateResult[models.Badge], error)
+}
+
+type paginateBadges struct {
 	badgeRepo db.BadgeRepository
 }
 
 func NewPaginateBadges(
 	badgeRepo db.BadgeRepository) PaginateBadges {
-	return PaginateBadges{badgeRepo}
+	return &paginateBadges{badgeRepo}
 }
 
-func (p *PaginateBadges) Run(
+func (p *paginateBadges) Run(
 	paginateOpt db.PaginateOptions,
 	userID uint,
 ) (db.PaginateResult[models.Badge], error) {

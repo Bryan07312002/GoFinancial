@@ -5,22 +5,26 @@ import (
 	"financial/internal/models"
 )
 
-type CreateBankAccountService struct {
+type CreateBankAccount interface {
+	Run(create CreateBankAccountDto) error
+}
+
+type createBankAccount struct {
 	bankAccountRepo db.BankAccountRepository
 }
 
-func NewCreateBankAccountService(
-	bankAccountRepo db.BankAccountRepository) CreateBankAccountService {
-	return CreateBankAccountService{bankAccountRepo}
+func NewCreateBankAccount(
+	bankAccountRepo db.BankAccountRepository) CreateBankAccount {
+	return &createBankAccount{bankAccountRepo}
 }
 
-type CreateBankAccount struct {
+type CreateBankAccountDto struct {
 	UserId      uint
 	Name        string
 	Description string
 }
 
-func (c *CreateBankAccountService) Run(create CreateBankAccount) error {
+func (c *createBankAccount) Run(create CreateBankAccountDto) error {
 	if _, err := c.bankAccountRepo.Create(models.BankAccount{
 		Name:        create.Name,
 		UserID:      create.UserId,

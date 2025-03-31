@@ -5,16 +5,23 @@ import (
 	"financial/internal/models"
 )
 
-type PaginateTransaction struct {
+type PaginateTransaction interface {
+	Run(
+		paginationOption db.PaginateOptionsWithTimeWindowSearch,
+		userID uint,
+	) (db.PaginateResult[models.TransactionWithDetails], error)
+}
+
+type paginateTransaction struct {
 	transactionRepo db.TransactionRepository
 }
 
 func NewPaginateTransaction(
 	transactionRepo db.TransactionRepository) PaginateTransaction {
-	return PaginateTransaction{transactionRepo}
+	return &paginateTransaction{transactionRepo}
 }
 
-func (p *PaginateTransaction) Run(
+func (p *paginateTransaction) Run(
 	paginationOption db.PaginateOptionsWithTimeWindowSearch,
 	userID uint,
 ) (db.PaginateResult[models.TransactionWithDetails], error) {

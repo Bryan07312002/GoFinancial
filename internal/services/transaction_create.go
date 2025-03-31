@@ -11,7 +11,11 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type CreateTransactionService struct {
+type CreateTransaction interface {
+	Run(newTransaction CreateTransactionDto, userId uint) error
+}
+
+type createTransaction struct {
 	transactionRepo db.TransactionRepository
 	bankAccountRepo db.BankAccountRepository
 }
@@ -19,11 +23,11 @@ type CreateTransactionService struct {
 func NewCreateTransactionService(
 	transactionRepo db.TransactionRepository,
 	bankAccountRepo db.BankAccountRepository,
-) CreateTransactionService {
-	return CreateTransactionService{transactionRepo, bankAccountRepo}
+) CreateTransaction {
+	return &createTransaction{transactionRepo, bankAccountRepo}
 }
 
-type CreateTransaction struct {
+type CreateTransactionDto struct {
 	Type          string
 	Value         decimal.Decimal
 	BankAccountID uint
@@ -36,8 +40,8 @@ type CreateTransaction struct {
 }
 
 // TODO: check date of transaction and update all balances after the transaction
-func (c *CreateTransactionService) Run(
-	newTransaction CreateTransaction,
+func (c *createTransaction) Run(
+	newTransaction CreateTransactionDto,
 	userId uint,
 ) error {
 	bankAccount, err := c.bankAccountRepo.FindByID(newTransaction.BankAccountID, userId)

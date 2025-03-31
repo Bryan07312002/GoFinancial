@@ -5,16 +5,23 @@ import (
 	"financial/internal/models"
 )
 
-type PaginateBankAccountsService struct {
+type PaginateBankAccounts interface {
+	Run(
+		paginateOpt db.PaginateOptions,
+		userID uint,
+	) (db.PaginateResult[models.BankAccount], error)
+}
+
+type paginateBankAccounts struct {
 	bankAccountRepo db.BankAccountRepository
 }
 
 func NewPaginateBankAccountsService(
-	bankAccountRepo db.BankAccountRepository) PaginateBankAccountsService {
-	return PaginateBankAccountsService{bankAccountRepo}
+	bankAccountRepo db.BankAccountRepository) PaginateBankAccounts {
+	return &paginateBankAccounts{bankAccountRepo}
 }
 
-func (p *PaginateBankAccountsService) Run(
+func (p *paginateBankAccounts) Run(
 	paginateOpt db.PaginateOptions,
 	userID uint,
 ) (db.PaginateResult[models.BankAccount], error) {

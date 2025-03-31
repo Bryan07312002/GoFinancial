@@ -4,15 +4,19 @@ import (
 	"financial/internal/sessions"
 )
 
-type IsAuthenticated struct {
+type IsAuthenticated interface {
+	Run(token sessions.Token) (uint, bool)
+}
+
+type isAuthenticated struct {
 	authRepo sessions.AuthenticationRepository
 }
 
-func NewIsAuthenticatedService(
+func NewIsAuthenticated(
 	authRepo sessions.AuthenticationRepository) IsAuthenticated {
-	return IsAuthenticated{authRepo}
+	return &isAuthenticated{authRepo}
 }
 
-func (i *IsAuthenticated) Run(token sessions.Token) (uint, bool) {
+func (i *isAuthenticated) Run(token sessions.Token) (uint, bool) {
 	return i.authRepo.IsAuthenticated(token)
 }

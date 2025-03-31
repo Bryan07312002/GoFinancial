@@ -4,12 +4,16 @@ import (
 	"financial/internal/db"
 	"financial/internal/models"
 
-	"github.com/shopspring/decimal"
 	"errors"
-    "fmt"
+	"fmt"
+	"github.com/shopspring/decimal"
 )
 
-type AddItemsToTransaction struct {
+type AddItemsToTransaction interface {
+	Run(newItems []NewItem, transactionId uint, userId uint) error
+}
+
+type addItemsToTransaction struct {
 	itemRepo        db.ItemRepository
 	badgeRepo       db.BadgeRepository
 	transactionRepo db.TransactionRepository
@@ -22,7 +26,7 @@ func NewAddItemsToTransaction(
 	transactionRepo db.TransactionRepository,
 	bankAccountRepo db.BankAccountRepository,
 ) AddItemsToTransaction {
-	return AddItemsToTransaction{
+	return &addItemsToTransaction{
 		itemRepo,
 		badgeRepo,
 		transactionRepo,
@@ -37,7 +41,7 @@ type NewItem struct {
 	Badges   *[]uint         `json:"badges"`
 }
 
-func (a *AddItemsToTransaction) Run(
+func (a *addItemsToTransaction) Run(
 	newItems []NewItem,
 	transactionId uint,
 	userId uint,
@@ -68,7 +72,7 @@ func (a *AddItemsToTransaction) Run(
 	}
 
 	for i, id := range ids {
-	fmt.Printf("%+v", newItems[i].Badges)
+		fmt.Printf("%+v", newItems[i].Badges)
 		items[i].ID = id
 	}
 

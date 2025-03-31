@@ -5,22 +5,26 @@ import (
 	"financial/internal/models"
 )
 
-type CreateCardService struct {
+type CreateCard interface {
+	Run(newCard CreateCardDto) error
+}
+
+type createCard struct {
 	cardRepo db.CardRepository
 }
 
-func NewCreateCardService(cardRepo db.CardRepository) CreateCardService {
-	return CreateCardService{cardRepo}
+func NewCreateCardService(cardRepo db.CardRepository) CreateCard {
+	return &createCard{cardRepo}
 }
 
-type CreateCard struct {
+type CreateCardDto struct {
 	BankAccountID uint
 
 	Name        string
 	Description string
 }
 
-func (c *CreateCardService) Run(newCard CreateCard) error {
+func (c *createCard) Run(newCard CreateCardDto) error {
 	_, err := c.cardRepo.Create(&models.Card{
 		Name:          newCard.Name,
 		Description:   newCard.Description,

@@ -1,41 +1,46 @@
 package handlers
 
 import (
-	"encoding/json"
-	"financial/internal/db"
-	"financial/internal/hash"
 	"financial/internal/services"
-	"net/http"
 
-	"gorm.io/gorm"
+	"encoding/json"
+	"net/http"
 )
+
+type RegisterUserFactory interface {
+	CreateRegisterUser() services.RegisterUser
+}
+
+type RegisterUserHandler struct {
+	factory RegisterUserFactory
+}
+
+func NewRegisterUserHandler(factory RegisterUserFactory) http.Handler {
+	return &RegisterUserHandler{factory}
+}
 
 type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func CreateRegisterUserHandler(con *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var form RegisterRequest
+func (re *RegisterUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var form RegisterRequest
 
-		if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		userRepo := db.NewUserRepository(con)
-		hashRepo := hash.NewHashRepository()
-		service := services.NewRegisterUserService(userRepo, hashRepo)
-
-		// FIXME: handle errors correctly
-		if err := service.Run(services.RegisterUser{
-			Name:     form.Email,
-			Password: form.Password,
-		}); err != nil {
-			ReturnError(err, w)
-		}
-
-		w.WriteHeader(http.StatusCreated)
+	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	service := re.factory.CreateRegisterUser()
+
+	// FIXME: handle errors correctly
+	if err := service.Run(services.RegisterUserDto{
+		Name:     form.Email,
+		Password: form.Password,
+	}); err != nil {
+		ReturnError(err, w)
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
