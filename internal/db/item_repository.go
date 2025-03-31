@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func ToItem(itemTable ItemTable) models.Item {
+func toItem(itemTable ItemTable) models.Item {
 	return models.Item{
 		ID:            itemTable.ID,
 		TransactionID: itemTable.TransactionID,
@@ -16,7 +16,7 @@ func ToItem(itemTable ItemTable) models.Item {
 	}
 }
 
-func ToItemTable(item models.Item) ItemTable {
+func toItemTable(item models.Item) ItemTable {
 	return ItemTable{
 		ID:            item.ID,
 		TransactionID: item.TransactionID,
@@ -41,7 +41,7 @@ func NewItemRepository(con *gorm.DB) ItemRepository {
 }
 
 func (i *itemRepository) Create(item models.Item) (uint, error) {
-	itemTableInstance := ToItemTable(item) // Convert to database model
+	itemTableInstance := toItemTable(item) // Convert to database model
 
 	err := i.db.Create(&itemTableInstance).Error
 	if err != nil {
@@ -59,7 +59,7 @@ func (i *itemRepository) CreateMultiple(items []models.Item) ([]uint, error) {
 	// Convert the slice of models.Item to a slice of ItemTable
 	var itemTableInstances []ItemTable
 	for _, item := range items {
-		itemTableInstances = append(itemTableInstances, ToItemTable(item))
+		itemTableInstances = append(itemTableInstances, toItemTable(item))
 	}
 
 	// Insert all items into the database at once
@@ -84,7 +84,7 @@ func (i *itemRepository) FindByID(ID uint) (models.Item, error) {
 		return models.Item{}, err
 	}
 
-	return ToItem(itemTableInstance), nil
+	return toItem(itemTableInstance), nil
 }
 
 func (i *itemRepository) Delete(id uint) error {

@@ -29,67 +29,7 @@ type transactionRepository struct {
 	db *gorm.DB
 }
 
-func ToTransactionTable(t models.Transaction) TransactionTable {
-	method := t.Method.String()
-
-	return TransactionTable{
-		ID:            t.ID,
-		Type:          t.Type.String(),
-		Method:        &method,
-		Credit:        t.Credit,
-		Establishment: t.Establishment,
-		Value:         t.Value,
-		Date:          t.Date,
-		CardID:        t.CardID,
-		BankAccountID: t.BankAccountID,
-	}
-}
-
-func toTransactionWithBadges(t TransactionTable) models.TransactionWithBadges {
-	transactionWithBadges := models.TransactionWithBadges{
-		Transaction: ToTransaction(t),
-	}
-
-	for _, item := range t.Items {
-		for _, badge := range item.Badges {
-			transactionWithBadges.Badges = append(
-				transactionWithBadges.Badges,
-				toBadge(badge),
-			)
-		}
-	}
-
-	return transactionWithBadges
-}
-
-func toTransactionWithDetails(t TransactionTable) models.TransactionWithDetails {
-	items := []models.ItemWithBadges{}
-	for _, item := range t.Items {
-		var badges []models.Badge
-		for _, badge := range item.Badges {
-			badges = append(badges, ToBadge(badge))
-		}
-
-		items = append(items, models.ItemWithBadges{
-			Item: models.Item{
-				ID:            item.ID,
-				Name:          item.Name,
-				TransactionID: item.TransactionID,
-				Value:         item.Value,
-				Quantity:      item.Quantity,
-			},
-			Badges: badges,
-		})
-	}
-
-	return models.TransactionWithDetails{
-		Transaction: ToTransaction(t),
-		Items:       items,
-		BankAccount: toBankAccount(t.BankAccount),
-	}
-}
-
-func ToTransaction(t TransactionTable) models.Transaction {
+func toTransaction(t TransactionTable) models.Transaction {
 	var method models.PaymentMethod
 	if t.Method != nil {
 		method = models.PaymentMethod(*t.Method)
@@ -109,8 +49,51 @@ func ToTransaction(t TransactionTable) models.Transaction {
 	}
 }
 
+func toTransactionTable(t models.Transaction) TransactionTable {
+	method := t.Method.String()
+
+	return TransactionTable{
+		ID:            t.ID,
+		Type:          t.Type.String(),
+		Method:        &method,
+		Credit:        t.Credit,
+		Establishment: t.Establishment,
+		Value:         t.Value,
+		Date:          t.Date,
+		CardID:        t.CardID,
+		BankAccountID: t.BankAccountID,
+	}
+}
+
+func toTransactionWithDetails(t TransactionTable) models.TransactionWithDetails {
+	items := []models.ItemWithBadges{}
+	for _, item := range t.Items {
+		var badges []models.Badge
+		for _, badge := range item.Badges {
+			badges = append(badges, toBadge(badge))
+		}
+
+		items = append(items, models.ItemWithBadges{
+			Item: models.Item{
+				ID:            item.ID,
+				Name:          item.Name,
+				TransactionID: item.TransactionID,
+				Value:         item.Value,
+				Quantity:      item.Quantity,
+			},
+			Badges: badges,
+		})
+	}
+
+	return models.TransactionWithDetails{
+		Transaction: toTransaction(t),
+		Items:       items,
+		BankAccount: toBankAccount(t.BankAccount),
+	}
+}
+
 func (c *transactionRepository) Create(transaction *models.Transaction) (uint, error) {
-	transactionTableInstance := ToTransactionTable(*transaction)
+	transactionTableInstance := toTransactionTable(*transaction)
 	if err := c.db.Create(&transactionTableInstance).Error; err != nil {
 		return 0, err
 	}
@@ -130,7 +113,7 @@ func (c *transactionRepository) FindByID(id uint, userID uint) (models.Transacti
 		return models.Transaction{}, err
 	}
 
-	return ToTransaction(transactionTableInstance), nil
+	return toTransaction(transactionTableInstance), nil
 }
 
 func (c *transactionRepository) FindByIDWithDetails(id, userID uint) (models.TransactionWithDetails, error) {
@@ -228,7 +211,7 @@ func (b *transactionRepository) GetRecentTransactions(
 	transactionsWithBadges := []models.TransactionWithBadges{}
 	for _, transaction := range transactions {
 		transactionWithBadges := models.TransactionWithBadges{
-			Transaction: ToTransaction(transaction),
+			Transaction: toTransaction(transaction),
 		}
 
 		for _, item := range transaction.Items {
@@ -296,7 +279,7 @@ func (b *transactionRepository) GetCurrentBalances(
 }
 
 func (b *transactionRepository) Update(transaction models.Transaction) error {
-	result := b.db.Save(ToTransactionTable(transaction))
+	result := b.db.Save(toTransactionTable(transaction))
 	if result.Error != nil {
 		return result.Error
 	}

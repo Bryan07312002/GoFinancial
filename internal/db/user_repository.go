@@ -24,7 +24,7 @@ type userRepository struct {
 	conn *gorm.DB
 }
 
-func ToUserTable(user models.User) UserTable {
+func toUserTable(user models.User) UserTable {
 	return UserTable{
 		ID:       user.ID,
 		Name:     user.Name,
@@ -32,7 +32,7 @@ func ToUserTable(user models.User) UserTable {
 	}
 }
 
-func ToUser(userTable UserTable) models.User {
+func toUser(userTable UserTable) models.User {
 	return models.User{
 		ID:       userTable.ID,
 		Name:     userTable.Name,
@@ -45,7 +45,7 @@ func NewUserRepository(conn *gorm.DB) UserRepository {
 }
 
 func (r *userRepository) Create(user models.User) (uint, error) {
-	userInstance := ToUserTable(user)
+	userInstance := toUserTable(user)
 	err := r.conn.Create(&userInstance).Error
 	if err != nil {
 		if err.Error() == "UNIQUE constraint failed: users.name" {
@@ -66,7 +66,7 @@ func (r *userRepository) FindByName(name string) (models.User, error) {
 		return models.User{}, err
 	}
 
-	user := ToUser(userTable)
+	user := toUser(userTable)
 	return user, nil
 }
 
@@ -74,5 +74,5 @@ func (r *userRepository) FindById(id uint) (models.User, error) {
 	var userTableInstance UserTable
 	r.conn.First(&userTableInstance, id)
 
-	return ToUser(userTableInstance), nil
+	return toUser(userTableInstance), nil
 }

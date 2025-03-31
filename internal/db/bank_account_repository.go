@@ -23,7 +23,7 @@ type BankAccountRepository interface {
 	Delete(ID uint) error
 }
 
-func ToBankAccountTable(bankAccount models.BankAccount) BankAccountTable {
+func toBankAccountTable(bankAccount models.BankAccount) BankAccountTable {
 	return BankAccountTable{
 		ID:          bankAccount.ID,
 		UserID:      bankAccount.UserID,
@@ -50,7 +50,7 @@ func NewBankAccountRepository(db *gorm.DB) BankAccountRepository {
 }
 
 func (b *bankAccountRepository) Create(bankAccount models.BankAccount) (uint, error) {
-	bankAccountTableInstance := ToBankAccountTable(bankAccount)
+	bankAccountTableInstance := toBankAccountTable(bankAccount)
 
 	if err := b.db.Create(&bankAccountTableInstance).Error; err != nil {
 		return 0, err
