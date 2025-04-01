@@ -16,7 +16,7 @@ type paginateBankAccounts struct {
 	bankAccountRepo db.BankAccountRepository
 }
 
-func NewPaginateBankAccountsService(
+func NewPaginateBankAccounts(
 	bankAccountRepo db.BankAccountRepository) PaginateBankAccounts {
 	return &paginateBankAccounts{bankAccountRepo}
 }

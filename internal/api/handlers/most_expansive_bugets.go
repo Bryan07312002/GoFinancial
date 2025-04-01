@@ -2,41 +2,47 @@ package handlers
 
 import (
 	"financial/internal/api/router/middlewares"
-	"financial/internal/db"
 	"financial/internal/services"
 
 	"encoding/json"
-	"gorm.io/gorm"
 	"net/http"
 )
 
-func CreateMostExpansiveBudgets(con *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-		if !ok {
-			http.Error(
-				w,
-				"User not found in context",
-				http.StatusInternalServerError)
-			return
-		}
+type MostExpansiveBudgetsFactory interface {
+	CreateMostExpansiveBadges() services.MostExpansiveBadges
+}
 
-		budgetRepo := db.NewBadgeRepository(con)
-		service := services.NewMostExpansiveBadges(budgetRepo)
+type MostExpansiveBadgesHandler struct {
+	factory MostExpansiveBudgetsFactory
+}
 
-		result, err := service.Run(userID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+func NewMostExpansiveBadgesHandler(factory MostExpansiveBudgetsFactory) http.Handler {
+	return &MostExpansiveBadgesHandler{factory}
+}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(result); err != nil {
-			http.Error(
-				w,
-				"Failed to encode response",
-				http.StatusInternalServerError)
-		}
+func (m *MostExpansiveBadgesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
+	if !ok {
+		http.Error(
+			w,
+			"User not found in context",
+			http.StatusInternalServerError)
+		return
+	}
+
+	service := m.factory.CreateMostExpansiveBadges()
+	result, err := service.Run(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(
+			w,
+			"Failed to encode response",
+			http.StatusInternalServerError)
 	}
 }

@@ -26,21 +26,46 @@ type RepositoryFactory interface {
 }
 
 type repositoryFactory struct {
-	dbCon *gorm.DB
+	dbCon     *gorm.DB
+	secretKey string
 }
 
-func NewRepositoryFactory(dbCon *gorm.DB) RepositoryFactory {
-	return &repositoryFactory{dbCon}
+func NewRepositoryFactory(dbCon *gorm.DB, secretKey string) RepositoryFactory {
+	return &repositoryFactory{dbCon, secretKey}
 }
 
-func (*repositoryFactory) CreateUserRepository() db.UserRepository               { return nil }
-func (*repositoryFactory) CreateBankAccountRepository() db.BankAccountRepository { return nil }
-func (*repositoryFactory) CreateTransactionRepository() db.TransactionRepository { return nil }
-func (*repositoryFactory) CreateItemRepository() db.ItemRepository               { return nil }
-func (*repositoryFactory) CreateBadgeRepository() db.BadgeRepository             { return nil }
-func (*repositoryFactory) CreateCardRepository() db.CardRepository               { return nil }
-func (*repositoryFactory) CreateHashRepository() hash.HashRepository             { return nil }
-func (*repositoryFactory) CreateAuthenticationRepository() sessions.AuthenticationRepository {
-	return nil
+func (r *repositoryFactory) CreateUserRepository() db.UserRepository {
+	return db.NewUserRepository(r.dbCon)
 }
-func (*repositoryFactory) CreateUuidStrategy() uuid.UuidStrategy { return nil }
+
+func (r *repositoryFactory) CreateBankAccountRepository() db.BankAccountRepository {
+	return db.NewBankAccountRepository(r.dbCon)
+}
+
+func (r *repositoryFactory) CreateTransactionRepository() db.TransactionRepository {
+	return db.NewTransactionRepository(r.dbCon)
+}
+
+func (r *repositoryFactory) CreateItemRepository() db.ItemRepository {
+	return db.NewItemRepository(r.dbCon)
+}
+
+func (r *repositoryFactory) CreateBadgeRepository() db.BadgeRepository {
+	return db.NewBadgeRepository(r.dbCon)
+}
+
+func (r *repositoryFactory) CreateCardRepository() db.CardRepository {
+	return db.NewCardRepository(r.dbCon)
+}
+
+func (r *repositoryFactory) CreateHashRepository() hash.HashRepository {
+	return hash.NewHashRepository()
+}
+
+func (r *repositoryFactory) CreateAuthenticationRepository() sessions.AuthenticationRepository {
+	return sessions.NewAuthenticationRepository(r.secretKey)
+}
+
+func (r *repositoryFactory) CreateUuidStrategy() uuid.UuidStrategy {
+    return uuid.NewUuidStrategy()
+}

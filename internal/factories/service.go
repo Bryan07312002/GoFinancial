@@ -11,7 +11,7 @@ type ServiceFactory interface {
 	// bank account service
 	CreateCreateBankAccount() services.CreateBankAccount
 	CreateDeleteBankAccount() services.DeleteBankAccount
-	CreatePaginateBankAccountsService() services.PaginateBankAccounts
+	CreatePaginateBankAccounts() services.PaginateBankAccounts
 	CreateUpdateBankAccount() services.UpdateBankAccount
 
 	// card service
@@ -36,7 +36,7 @@ type ServiceFactory interface {
 	CreateMostExpansiveBadges() services.MostExpansiveBadges
 	CreateDeleteBadge() services.DeleteBadge
 	CreateUpdateBadge() services.UpdateBadge
-	CreatePaginateBadges() services.UpdateBadge
+	CreatePaginateBadges() services.PaginateBadges
 }
 
 type serviceFactory struct {
@@ -68,20 +68,20 @@ func (s *serviceFactory) CreateLogin() services.Login {
 	)
 }
 
-func (s *serviceFactory) CreateCreateBankAccountService() services.CreateBankAccountService {
-	return services.NewCreateBankAccountService(
+func (s *serviceFactory) CreateCreateBankAccount() services.CreateBankAccount{
+	return services.NewCreateBankAccount(
 		s.repositoryFactory.CreateBankAccountRepository(),
 	)
 }
 
-func (s *serviceFactory) CreateDeleteBankAccountService() services.DeleteBankAccountService {
+func (s *serviceFactory) CreateDeleteBankAccount() services.DeleteBankAccount{
 	return services.NewDeleteBankAccountService(
 		s.repositoryFactory.CreateBankAccountRepository(),
 	)
 }
 
-func (s *serviceFactory) CreatePaginateBankAccountsService() services.PaginateBankAccountsService {
-	return services.PaginateBankAccountsService(
+func (s *serviceFactory) CreatePaginateBankAccounts() services.PaginateBankAccounts{
+	return services.NewPaginateBankAccounts(
 		s.repositoryFactory.CreateBankAccountRepository(),
 	)
 }
@@ -189,8 +189,8 @@ func (s *serviceFactory) CreateUpdateBadge() services.UpdateBadge {
 	)
 }
 
-func (s *serviceFactory) CreatePaginateBadges() services.UpdateBadge {
-	return services.NewUpdateBadge(
+func (s *serviceFactory) CreatePaginateBadges() services.PaginateBadges {
+	return services.NewPaginateBadges(
 		s.repositoryFactory.CreateBadgeRepository(),
 	)
 }

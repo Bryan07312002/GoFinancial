@@ -2,42 +2,48 @@ package handlers
 
 import (
 	"financial/internal/api/router/middlewares"
-	"financial/internal/db"
 	"financial/internal/services"
 
 	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
 
-func CreateDeleteBadge(con *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-		if !ok {
-			http.Error(
-				w,
-				"User not found in context",
-				http.StatusInternalServerError)
-			return
-		}
+type DeleteBadgeFactory interface{
+    CreateDeleteBadge() services.DeleteBadge
+}
 
-		vars := mux.Vars(r)
-		id := vars["id"]
-		badgeId, err := strconv.ParseUint(id, 10, 0)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+type DeleteBadgeHandler struct {
+	factory DeleteBadgeFactory
+}
 
-		badgeRepo := db.NewBadgeRepository(con)
-		service := services.NewDeleteBadge(badgeRepo)
+func NewDeleteBadgeHandler(factory DeleteBadgeFactory) http.Handler {
+	return &DeleteBadgeHandler{factory}
+}
 
-		if err := service.Run(uint(badgeId), userID); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusNoContent)
+func (d *DeleteBadgeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
+	if !ok {
+		http.Error(
+			w,
+			"User not found in context",
+			http.StatusInternalServerError)
+		return
 	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	badgeId, err := strconv.ParseUint(id, 10, 0)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	service := d.factory.CreateDeleteBadge()
+	if err := service.Run(uint(badgeId), userID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

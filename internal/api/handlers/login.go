@@ -36,7 +36,7 @@ func (l *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	service := (*l.factory).CreateLogin()
+	service := l.factory.CreateLogin()
 	token, err := service.Run(services.LoginForm{
 		Name:     form.Email,
 		Password: form.Password,

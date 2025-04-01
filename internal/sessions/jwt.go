@@ -20,8 +20,8 @@ type authenticationRepository struct {
 	secretKey []byte
 }
 
-func NewAuthenticationRepository(secretKey string) authenticationRepository {
-	return authenticationRepository{
+func NewAuthenticationRepository(secretKey string) AuthenticationRepository {
+	return &authenticationRepository{
 		secretKey: []byte(secretKey),
 	}
 }

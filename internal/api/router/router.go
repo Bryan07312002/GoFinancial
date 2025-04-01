@@ -14,7 +14,9 @@ type Router struct {
 }
 
 func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
-	factory := factories.NewServiceFactory(factories.NewRepositoryFactory(dbCon))
+	factory := factories.NewServiceFactory(
+		factories.NewRepositoryFactory(dbCon, jwtKey),
+	)
 	r := mux.NewRouter()
 
 	r.HandleFunc("/health", handlers.HealthHandler).Methods("GET")
@@ -47,24 +49,24 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 		handlers.NewRecentTransactionsHandler(factory)).Methods("GET")
 	protected.Handle("/transactions/balance",
 		handlers.NewCurrentBalanceHandler(factory)).Methods("GET")
-	protected.HandleFunc("/transactions/{id}",
-		handlers.CreateFindTransaction(dbCon)).Methods("GET")
-	protected.HandleFunc("/transactions/{id}",
-		handlers.CreateTransactionDelete(dbCon)).Methods("DELETE")
+	protected.Handle("/transactions/{id}",
+		handlers.NewFindTransactionHandler(factory)).Methods("GET")
+	protected.Handle("/transactions/{id}",
+		handlers.NewDeleteTransactionHandler(factory)).Methods("DELETE")
 
-	protected.HandleFunc("/items",
-		handlers.CreateAddItemsToTransaction(dbCon)).Methods("POST")
-	protected.HandleFunc("/items/{id}",
-		handlers.CreateDeleteItem(dbCon)).Methods("DELETE")
+	protected.Handle("/items",
+		handlers.NewAddItemsToTransactionHandler(factory)).Methods("POST")
+	protected.Handle("/items/{id}",
+		handlers.NewDeleteItemHandler(factory)).Methods("DELETE")
 
-	protected.HandleFunc("/badges/most-expansive",
-		handlers.CreateMostExpansiveBudgets(dbCon)).Methods("GET")
-	protected.HandleFunc("/badges/{id}",
-		handlers.CreateDeleteBadge(dbCon)).Methods("DELETE")
-	protected.HandleFunc("/badges",
-		handlers.CreateCreateBadge(dbCon)).Methods("POST")
-	protected.HandleFunc("/badges",
-		handlers.CreatePaginateBadge(dbCon)).Methods("GET")
+	protected.Handle("/badges/most-expansive",
+		handlers.NewMostExpansiveBadgesHandler(factory)).Methods("GET")
+	protected.Handle("/badges/{id}",
+		handlers.NewDeleteBadgeHandler(factory)).Methods("DELETE")
+	protected.Handle("/badges",
+		handlers.NewCreateBadgeHandler(factory)).Methods("POST")
+	protected.Handle("/badges",
+		handlers.NewPaginateBadgesHandler(factory)).Methods("GET")
 
 	return &Router{r}
 }
