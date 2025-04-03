@@ -2,10 +2,9 @@ package services
 
 import (
 	"financial/internal/db"
+	"financial/internal/errors"
 	"financial/internal/hash"
 	"financial/internal/sessions"
-
-	"errors"
 )
 
 type Login interface {
@@ -36,18 +35,18 @@ type LoginForm struct {
 }
 
 var (
-	EmailOrPasswordNotMatchError = errors.New("email or password dont match with any record")
+	NameOrPasswordNotMatchError = errors.UnauthorizedError().
+		WithDetails("name or password dont match with any record")
 )
 
 func (l *login) Run(form LoginForm) (sessions.Token, error) {
 	user, err := l.userRepo.FindByName(form.Name)
 	if err != nil {
-		return sessions.Token(""), EmailOrPasswordNotMatchError
+		return sessions.Token(""), NameOrPasswordNotMatchError
 	}
 
 	if !l.hashRepo.Compare(form.Password, user.Password) {
-		// TODO: add a proper error return here
-		return sessions.Token(""), EmailOrPasswordNotMatchError
+		return sessions.Token(""), NameOrPasswordNotMatchError
 	}
 
 	return l.authRepo.CreateToken(user)
