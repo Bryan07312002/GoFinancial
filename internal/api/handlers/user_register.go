@@ -39,7 +39,7 @@ func (re *RegisterUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		Name:     form.Email,
 		Password: form.Password,
 	}); err != nil {
-		ReturnError(err, w)
+		writeError(err, w)
 	}
 
 	w.WriteHeader(http.StatusCreated)

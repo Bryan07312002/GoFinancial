@@ -42,7 +42,7 @@ func (l *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Password: form.Password,
 	})
 	if err != nil {
-		ReturnError(err, w)
+		writeError(err, w)
 		return
 	}
 

@@ -1,43 +1,18 @@
 package handlers
 
 import (
-	"financial/internal/db"
-	"financial/internal/services"
+	serviceError "financial/internal/errors"
 
-	"errors"
 	"net/http"
 )
 
-type HttpError struct {
-	Status  int
-	Payload string // json
-}
-
-func transalateError(err error) HttpError {
-	switch {
-	case errors.Is(err, services.EmailOrPasswordNotMatchError):
-		return HttpError{
-			Status:  401,
-			Payload: err.Error(),
-		}
-	case err.Error() == db.ErrDuplicateEmail.Error():
-		return HttpError{
-			Status:  422,
-			Payload: err.Error(),
-		}
+func writeError(err error, w http.ResponseWriter) {
+	if error, ok := err.(*serviceError.ServiceError); ok {
+		error.WriteJSON(w)
+		return
 	}
-
-	println(err.Error())
-	return HttpError{
-		Status:  500,
-		Payload: "internal error",
-	}
-}
-
-func ReturnError(err error, w http.ResponseWriter) {
-	httpError := transalateError(err)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(httpError.Status)
-	w.Write([]byte(httpError.Payload))
+	w.WriteHeader(500)
+	w.Write([]byte("internal error"))
 }
