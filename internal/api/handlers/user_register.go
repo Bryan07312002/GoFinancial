@@ -20,8 +20,8 @@ func NewRegisterUserHandler(factory RegisterUserFactory) http.Handler {
 }
 
 type RegisterRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 func (re *RegisterUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -32,14 +32,19 @@ func (re *RegisterUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if err := validateRequest(form); err != nil {
+		writeError(err, w)
+		return
+	}
+
 	service := re.factory.CreateRegisterUser()
 
-	// FIXME: handle errors correctly
 	if err := service.Run(services.RegisterUserDto{
 		Name:     form.Email,
 		Password: form.Password,
 	}); err != nil {
 		writeError(err, w)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)

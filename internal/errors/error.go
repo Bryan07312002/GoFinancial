@@ -73,6 +73,13 @@ func RequiredField(field string) FieldError {
 	}
 }
 
+func ConflictField(field string) FieldError {
+	return FieldError{
+		Field:   field,
+		Message: fmt.Sprintf("%s already in use", field),
+	}
+}
+
 func InvalidFormat(field string) FieldError {
 	return FieldError{
 		Field:   field,

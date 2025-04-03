@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrDuplicateEmail = errors.ConflictError().
-		AddFieldError("email", "email already exists")
+		AddFieldError("email", errors.ConflictField("email").Message)
 )
 
 // Easier to test another items that depends on this if interface is exported
