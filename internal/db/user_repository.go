@@ -8,9 +8,8 @@ import (
 )
 
 var (
-	ErrDuplicateEmail = errors.New(map[string]string{
-		"email": "email already registered",
-	})
+	ErrDuplicateEmail = errors.ConflictError().
+		AddFieldError("email", "email already exists")
 )
 
 // Easier to test another items that depends on this if interface is exported
@@ -49,7 +48,7 @@ func (r *userRepository) Create(user models.User) (uint, error) {
 	err := r.conn.Create(&userInstance).Error
 	if err != nil {
 		if err.Error() == "UNIQUE constraint failed: users.name" {
-			return 0, &ErrDuplicateEmail
+			return 0, ErrDuplicateEmail
 		}
 
 		return 0, err
