@@ -6,12 +6,11 @@ import (
 )
 
 func generateService() (
-	RegisterUserService, *UserRepositoryMock, *HashRepositoryMock) {
+	RegisterUser, *UserRepositoryMock, *HashRepositoryMock) {
 	repo := &UserRepositoryMock{}
 	hashRepo := &HashRepositoryMock{}
 
-	return RegisterUserService{
-		userRepo: repo, hashRepo: hashRepo}, repo, hashRepo
+	return NewRegisterUser(repo, hashRepo), repo, hashRepo
 }
 
 func TestRegisterUser(t *testing.T) {
@@ -31,7 +30,7 @@ func TestRegisterUser(t *testing.T) {
 			return "", nil
 		}
 
-		service.Run(RegisterUser{
+		service.Run(RegisterUserDto{
 			Name:     "tester",
 			Password: "testPassword",
 		})
@@ -46,7 +45,7 @@ func TestRegisterUser(t *testing.T) {
 		"Hash should be applied in User.Password before calling repoUser.Create",
 		func(t *testing.T) {
 			service, r, h := generateService()
-			input := RegisterUser{
+			input := RegisterUserDto{
 				Name:     "tester",
 				Password: "testPassword",
 			}

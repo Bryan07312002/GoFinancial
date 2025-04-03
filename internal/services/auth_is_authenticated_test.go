@@ -11,7 +11,7 @@ func generateIsAuthenticatedService() (
 
 	authRepo := &AuthorizationRepositoryMock{}
 
-	return IsAuthenticated{authRepo: authRepo}, authRepo
+	return NewIsAuthenticated(authRepo), authRepo
 }
 
 func TestIsAuthenticatedService(t *testing.T) {

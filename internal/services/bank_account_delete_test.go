@@ -8,7 +8,7 @@ import (
 )
 
 func generateDeleteBankAccountService() (
-	DeleteBankAccountService,
+	DeleteBankAccount,
 	*BankAccountRepositoryMock) {
 
 	bankAccMock := &BankAccountRepositoryMock{}

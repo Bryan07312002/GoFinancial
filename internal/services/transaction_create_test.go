@@ -11,7 +11,7 @@ import (
 )
 
 func generateCreateTransactionService() (
-	CreateTransactionService,
+	CreateTransaction,
 	*BankAccountRepositoryMock,
 	*TransactionRepositoryMock) {
 	bankAccMock := &BankAccountRepositoryMock{}
@@ -40,7 +40,7 @@ func TestCreateTransactionService(t *testing.T) {
 		}
 
 		method := models.DebitCard.String()
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          models.Expense.String(),
 			Method:        &method,
 			Value:         validValue,
@@ -80,7 +80,7 @@ func TestCreateTransactionService(t *testing.T) {
 			return 1, nil
 		}
 
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          models.Transfer.String(),
 			Value:         validValue,
 			BankAccountID: validBankAccountID,
@@ -115,7 +115,7 @@ func TestCreateTransactionService(t *testing.T) {
 		}
 
 		method := "invalid method"
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          models.Transfer.String(),
 			Method:        &method,
 			Value:         validValue,
@@ -142,7 +142,7 @@ func TestCreateTransactionService(t *testing.T) {
 			return 1, nil
 		}
 
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          models.Income.String(),
 			Value:         validValue,
 			BankAccountID: validBankAccountID,
@@ -171,7 +171,7 @@ func TestCreateTransactionService(t *testing.T) {
 
 		customDate := time.Now()
 		customDateString := utils.FormatDate(customDate)
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          models.Expense.String(),
 			Value:         validValue,
 			BankAccountID: validBankAccountID,
@@ -191,7 +191,7 @@ func TestCreateTransactionService(t *testing.T) {
 			return models.BankAccount{UserID: validUserID}, nil
 		}
 
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          "invalid_type",
 			BankAccountID: validBankAccountID,
 			Value:         validValue,
@@ -217,7 +217,7 @@ func TestCreateTransactionService(t *testing.T) {
 		}
 
 		testValue := decimal.NewFromFloat(123.45)
-		input := CreateTransaction{
+		input := CreateTransactionDto{
 			Type:          models.Income.String(),
 			Value:         testValue,
 			BankAccountID: validBankAccountID,

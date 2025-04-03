@@ -8,7 +8,7 @@ import (
 )
 
 func generateLoginService() (
-	LoginService,
+	Login,
 	*UserRepositoryMock,
 	*AuthorizationRepositoryMock,
 	*HashRepositoryMock,
@@ -17,11 +17,7 @@ func generateLoginService() (
 	authRepo := &AuthorizationRepositoryMock{}
 	hashRepo := &HashRepositoryMock{}
 
-	return LoginService{
-		userRepo: userRepo,
-		authRepo: authRepo,
-		hashRepo: hashRepo,
-	}, userRepo, authRepo, hashRepo
+	return NewLogin(userRepo, authRepo, hashRepo), userRepo, authRepo, hashRepo
 }
 
 func TestLogin(t *testing.T) {
