@@ -3,7 +3,6 @@ package handlers
 import (
 	"financial/internal/services"
 
-	"encoding/json"
 	"net/http"
 )
 
@@ -26,13 +25,7 @@ type RegisterRequest struct {
 
 func (re *RegisterUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var form RegisterRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if err := validateRequest(form); err != nil {
+	if err := extractBody(r, &form); err != nil {
 		writeError(err, w)
 		return
 	}

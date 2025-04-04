@@ -141,5 +141,5 @@ func ConflictError() *ServiceError {
 }
 
 func ValidationError() *ServiceError {
-	return New(http.StatusBadRequest, ErrValidationFailed)
+	return New(http.StatusUnprocessableEntity, ErrValidationFailed)
 }

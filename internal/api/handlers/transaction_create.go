@@ -1,23 +1,22 @@
 package handlers
 
 import (
-	"financial/internal/api/router/middlewares"
 	"financial/internal/services"
 
-	"encoding/json"
-	"github.com/shopspring/decimal"
 	"net/http"
+	"github.com/shopspring/decimal"
 )
+
 
 type CreateTransactionFactory interface {
 	CreateCreateTransaction() services.CreateTransaction
 }
 
 type CreateTransactionRequest struct {
-	Type          string          `json:"type"`
-	Value         decimal.Decimal `json:"value"`
-	BankAccountID uint            `json:"bank_account_id"`
-	Establishment string          `json:"establishment"`
+	Type          string          `json:"type" validate:"required"`
+	Value         decimal.Decimal `json:"value" validate:"required"`
+	BankAccountID uint            `json:"bank_account_id" validate:"required"`
+	Establishment string          `json:"establishment" validate:"required"`
 	Date          *string         `json:"date"`
 	CardID        *uint           `json:"card_id"`
 	Credit        *bool           `json:"credit"`
@@ -35,14 +34,9 @@ func NewCreateTransactionHandler(factory CreateTransactionFactory) http.Handler 
 func (c *CreateTransactionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var transaction CreateTransactionRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-	if !ok {
-		http.Error(w, "User not found in context", http.StatusInternalServerError)
+	userID, err := extractBodyAndUserId(r, &transaction)
+	if err != nil {
+		writeError(err, w)
 		return
 	}
 
@@ -57,7 +51,8 @@ func (c *CreateTransactionHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 		Credit:        transaction.Credit,
 		Method:        transaction.Method,
 	}, userID); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeError(err, w)
+        return
 	}
 
 	w.WriteHeader(http.StatusCreated)

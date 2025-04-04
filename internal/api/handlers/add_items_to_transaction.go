@@ -1,16 +1,14 @@
 package handlers
 
 import (
-	"financial/internal/api/router/middlewares"
 	"financial/internal/services"
 
-	"encoding/json"
 	"net/http"
 )
 
 type NewItemsDto struct {
-	Items         []services.NewItem `json:"items"`
-	TransactionId uint               `json:"transaction_id"`
+	Items         []services.NewItem `json:"items" validate:"required"`
+	TransactionId uint               `json:"transaction_id" validate:"required"`
 }
 type AddItemsToTransactionFactory interface {
 	CreateAddItemsToTransaction() services.AddItemsToTransaction
@@ -26,24 +24,15 @@ func NewAddItemsToTransactionHandler(factory AddItemsToTransactionFactory) http.
 func (a *AddItemsToTransactionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var form NewItemsDto
 
-	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-	if !ok {
-		http.Error(
-			w,
-			"User not found in context",
-			http.StatusInternalServerError,
-		)
+	userID, err := extractBodyAndUserId(r, &form)
+	if err != nil {
+		writeError(err, w)
 		return
 	}
 
 	service := a.factory.CreateAddItemsToTransaction()
 	if err := service.Run(form.Items, form.TransactionId, userID); err != nil {
-		http.Error(w, "error", http.StatusInternalServerError)
+		writeError(err, w)
 		return
 	}
 

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"financial/internal/api/router/middlewares"
 	"financial/internal/services"
 
 	"encoding/json"
@@ -21,19 +20,16 @@ func NewMostExpansiveBadgesHandler(factory MostExpansiveBudgetsFactory) http.Han
 }
 
 func (m *MostExpansiveBadgesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middlewares.UserKey).(uint)
-	if !ok {
-		http.Error(
-			w,
-			"User not found in context",
-			http.StatusInternalServerError)
+	userID, err := extractUserId(r)
+	if err != nil {
+		writeError(err, w)
 		return
 	}
 
 	service := m.factory.CreateMostExpansiveBadges()
 	result, err := service.Run(userID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeError(err, w)
 		return
 	}
 

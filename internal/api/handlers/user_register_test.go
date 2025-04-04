@@ -1,16 +1,16 @@
 package handlers
 
 import (
-	"bytes"
 	"financial/internal/db"
 	"financial/internal/errors"
 	"financial/internal/services"
+
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-// MockRegisterUserFactory is a test implementation of RegisterUserFactory
 type MockRegisterUserFactory struct {
 	createRegisterUserFn func() services.RegisterUser
 }
@@ -69,7 +69,8 @@ func TestRegisterUserHandler_ServeHTTP(t *testing.T) {
 				return &MockRegisterUserFactory{}
 			},
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   "unexpected EOF\n",
+			expectedBody: string(errors.BadRequestError().
+				WithDetails("unexpected EOF").ToJSON()),
 		},
 		{
 			name:        "missing email",
@@ -79,7 +80,8 @@ func TestRegisterUserHandler_ServeHTTP(t *testing.T) {
 			},
 			expectedStatus: http.StatusBadRequest,
 			expectedBody: string(errors.BadRequestError().
-				AddFieldError("email", errors.RequiredField("email").Message).ToJSON()),
+				AddFieldError("email", errors.RequiredField("email").Message).
+				ToJSON()),
 		},
 		{
 			name:        "service error",
@@ -97,7 +99,8 @@ func TestRegisterUserHandler_ServeHTTP(t *testing.T) {
 			},
 			expectedStatus: http.StatusConflict,
 			expectedBody: string(errors.ConflictError().
-				AddFieldError("email", errors.ConflictField("email").Message).ToJSON()),
+				AddFieldError("email", errors.ConflictField("email").Message).
+				ToJSON()),
 		},
 	}
 
