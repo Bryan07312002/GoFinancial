@@ -178,6 +178,67 @@ func (t *TransactionRepositoryMock) Create(
 	return t.CreateFunc(transaction)
 }
 
+type BadgeRepositoryMock struct {
+	CreateFn             func(badge *models.Badge) (uint, error)
+	CreateMultipleFn     func(badges []models.Badge) ([]uint, error)
+	LinkItemToBadgeFn    func(itemID uint, badgeID uint) error
+	FindByIDFn           func(id, userID uint) (models.Badge, error)
+	FindByItemFn         func(itemID uint) ([]models.Badge, error)
+	FindByTransactionFn  func(transactionID uint) ([]models.Badge, error)
+	PaginateFromUserIDFn func(
+		paginateOpt db.PaginateOptions,
+		userID uint,
+	) (db.PaginateResult[models.Badge], error)
+	GetMostExpansivesFn func(userID uint) ([]models.BadgeWithValue, error)
+	UpdateFn            func(badge models.Badge) error
+	DeleteFn            func(id uint) error
+}
+
+func (b *BadgeRepositoryMock) Create(badge *models.Badge) (uint, error) {
+	return b.CreateFn(badge)
+}
+
+func (b *BadgeRepositoryMock) CreateMultiple(badges []models.Badge) ([]uint, error) {
+	return b.CreateMultipleFn(badges)
+}
+
+func (b *BadgeRepositoryMock) LinkItemToBadge(itemID uint, badgeID uint) error {
+	return b.LinkItemToBadgeFn(itemID, badgeID)
+}
+
+func (b *BadgeRepositoryMock) FindByID(id, userID uint) (models.Badge, error) {
+	return b.FindByIDFn(id, userID)
+}
+
+func (b *BadgeRepositoryMock) FindByItem(itemID uint) ([]models.Badge, error) {
+	return b.FindByItem(itemID)
+}
+
+func (b *BadgeRepositoryMock) FindByTransaction(
+	transactionID uint) ([]models.Badge, error) {
+	return b.FindByTransaction(transactionID)
+}
+
+func (b *BadgeRepositoryMock) PaginateFromUserID(
+	paginateOpt db.PaginateOptions,
+	userID uint,
+) (db.PaginateResult[models.Badge], error) {
+	return b.PaginateFromUserIDFn(paginateOpt, userID)
+}
+
+func (b *BadgeRepositoryMock) GetMostExpansives(
+	userID uint) ([]models.BadgeWithValue, error) {
+	return b.GetMostExpansivesFn(userID)
+}
+
+func (b *BadgeRepositoryMock) Update(badge models.Badge) error {
+	return b.UpdateFn(badge)
+}
+
+func (b *BadgeRepositoryMock) Delete(id uint) error {
+	return b.DeleteFn(id)
+}
+
 // -------------------------------
 //
 //	SESSIONS repositories

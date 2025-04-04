@@ -3,7 +3,7 @@ package services
 import "financial/internal/db"
 
 type UpdateBadge interface {
-	Run(badgeID uint, dto BadgeUpdateDto, userID uint) error
+	Run(badgeID uint, dto UpdateBadgeDto, userID uint) error
 }
 
 type updateBadge struct {
@@ -14,12 +14,12 @@ func NewUpdateBadge(badgeRepo db.BadgeRepository) UpdateBadge {
 	return &updateBadge{badgeRepo}
 }
 
-type BadgeUpdateDto struct {
+type UpdateBadgeDto struct {
 	Name  *string `json:"name,omitempty"`
 	Color *string `json:"color,omitempty"`
 }
 
-func (u *updateBadge) Run(badgeID uint, dto BadgeUpdateDto, userID uint) error {
+func (u *updateBadge) Run(badgeID uint, dto UpdateBadgeDto, userID uint) error {
 	badge, err := u.badgeRepo.FindByID(badgeID, userID)
 	if err != nil {
 		return err

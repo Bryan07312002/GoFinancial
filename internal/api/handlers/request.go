@@ -8,12 +8,14 @@ import (
 
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/mux"
 )
 
 func validateRequest(data any) *errors.ServiceError {
@@ -23,8 +25,7 @@ func validateRequest(data any) *errors.ServiceError {
 		return nil
 	}
 
-    //fmt.Printf("%+v aaa", err)
-
+	//fmt.Printf("%+v aaa", err)
 
 	serviceErr := errors.BadRequestError()
 
@@ -118,6 +119,18 @@ func extractBodyAndUserId(req *http.Request, form any) (uint, error) {
 	}
 
 	return extractUserId(req)
+}
+
+func extractUintFromUrl(req *http.Request, varName string) (uint64, error) {
+	vars := mux.Vars(req)
+	id := vars[varName]
+
+	transactionID, err := strconv.ParseUint(id, 10, 0)
+	if err != nil {
+		return 0, err
+	}
+
+	return transactionID, nil
 }
 
 func extractPaginateOptionsWithTimeWindowSearch(

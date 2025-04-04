@@ -67,6 +67,10 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 		handlers.NewCreateBadgeHandler(factory)).Methods("POST")
 	protected.Handle("/badges",
 		handlers.NewPaginateBadgesHandler(factory)).Methods("GET")
+	protected.Handle("/badges/{id}",
+		handlers.NewUpdateBadgeHandler(factory)).Methods("PUT")
+	protected.Handle("/badges/{id}",
+		handlers.NewUpdateBadgeHandler(factory)).Methods("PATCH")
 
 	return &Router{r}
 }
