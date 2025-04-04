@@ -33,6 +33,10 @@ func NewRouter(dbCon *gorm.DB, jwtKey string) *Router {
 		handlers.NewPaginateBankAccountHandler(factory)).Methods("GET")
 	protected.Handle("/bank_accounts/{id}",
 		handlers.NewDeleteBankAccountHandler(factory)).Methods("DELETE")
+	protected.Handle("/bank_accounts/{id}",
+		handlers.NewUpdateBankAccountHandler(factory)).Methods("PUT")
+	protected.Handle("/bank_accounts/{id}",
+		handlers.NewUpdateBankAccountHandler(factory)).Methods("PATCH")
 
 	protected.Handle("/cards",
 		handlers.NewCreateCardHandler(factory)).Methods("POST")
