@@ -178,6 +178,40 @@ func (t *TransactionRepositoryMock) Create(
 	return t.CreateFunc(transaction)
 }
 
+type ItemRepositoryMock struct {
+	CreateMultipleFn func(items []models.Item) ([]uint, error)
+	FindByIDFn       func(ID uint) (models.Item, error)
+	DeleteFn         func(id uint) error
+	UpdateFn         func(item models.Item, removeBagdes []uint, addBagdes []uint) error
+	RemoveBagdesFn   func(badgeIds []uint) error
+	AddBagdesFn      func(badgeIds []uint) error
+}
+
+func (i *ItemRepositoryMock) CreateMultiple(items []models.Item) ([]uint, error) {
+	return i.CreateMultipleFn(items)
+}
+
+func (i *ItemRepositoryMock) FindByID(ID uint) (models.Item, error) {
+	return i.FindByIDFn(ID)
+}
+
+func (i *ItemRepositoryMock) Delete(ID uint) error {
+	return i.DeleteFn(ID)
+}
+
+func (i *ItemRepositoryMock) Update(
+	item models.Item, removeBagdes []uint, addBagdes []uint) error {
+	return i.UpdateFn(item, removeBagdes, addBagdes)
+}
+
+func (i *ItemRepositoryMock) RemoveBagdes(badgeIds []uint) error {
+	return i.RemoveBagdesFn(badgeIds)
+}
+
+func (i *ItemRepositoryMock) AddBagdes(badgeIds []uint) error {
+	return i.AddBagdesFn(badgeIds)
+}
+
 type BadgeRepositoryMock struct {
 	CreateFn             func(badge *models.Badge) (uint, error)
 	CreateMultipleFn     func(badges []models.Badge) ([]uint, error)

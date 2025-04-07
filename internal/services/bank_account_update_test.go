@@ -12,7 +12,7 @@ func generateUpdateBankAccount() (UpdateBankAccount, *BankAccountRepositoryMock)
 	return NewUpdateBankAccount(repo), repo
 }
 
-func TestUpdateBankAccountSuccessfuly(t *testing.T) {
+func TestUpdateBankAccountSuccessfully(t *testing.T) {
 	service, bankAccRepo := generateUpdateBankAccount()
 
 	returnedBankAcc := models.BankAccount{
@@ -51,12 +51,12 @@ func TestUpdateBankAccountSuccessfuly(t *testing.T) {
 	}
 
 	if FindByIDCalledTimes != 1 {
-		t.Error("FindByID to have beeing called 1 time but was called ",
+		t.Error("FindByID to have beein called 1 time but was called ",
 			FindByIDCalledTimes)
 	}
 
 	if UpdateCalledTimes != 1 {
-		t.Error("Update to have beeing called 1 time but was called ",
+		t.Error("Update to have been called 1 time but was called ",
 			UpdateCalledTimes)
 	}
 }
@@ -85,16 +85,16 @@ func TestUpdateBankAccountShouldReturnErrorWhenFindByIDReturnError(t *testing.T)
 	}
 
 	if err := service.Run(1, dto, 1); err == nil {
-		t.Errorf("expected error " + err.Error() + " but got nil")
+		t.Error("expected error " + expectedError.Error() + " but got nil")
 	}
 
 	if FindByIDCalledTimes != 1 {
-		t.Error("FindByID to have beeing called 1 time but was called ",
+		t.Error("FindByID to have been called 1 time but was called ",
 			FindByIDCalledTimes)
 	}
 
 	if UpdateCalledTimes != 0 {
-		t.Error("Update to have beeing called 0 times but was called ",
+		t.Error("Update to have been called 0 times but was called ",
 			UpdateCalledTimes)
 	}
 }
@@ -129,16 +129,16 @@ func TestUpdateBankAccountShouldReturnErrorWhenUpdateReturnError(t *testing.T) {
 	}
 
 	if err := service.Run(1, dto, 1); err == nil {
-		t.Errorf("expected error " + err.Error() + " but got nil")
+		t.Errorf("expected error " + expectedError.Error() + " but got nil")
 	}
 
 	if FindByIDCalledTimes != 1 {
-		t.Error("FindByID to have beeing called 1 time but was called ",
+		t.Error("FindByID to have been called 1 time but was called ",
 			FindByIDCalledTimes)
 	}
 
 	if UpdateCalledTimes != 1 {
-		t.Error("Update to have beeing called 1 times but was called ",
+		t.Error("Update to have been called 1 times but was called ",
 			UpdateCalledTimes)
 	}
 }
