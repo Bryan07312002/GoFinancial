@@ -19,15 +19,15 @@ func (m *MockRegisterUserFactory) CreateRegisterUser() services.RegisterUser {
 	if m.createRegisterUserFn != nil {
 		return m.createRegisterUserFn()
 	}
-	return &MockRegisterUser{}
+	return &mockRegisterUser{}
 }
 
 // MockRegisterUser is a test implementation of RegisterUser service
-type MockRegisterUser struct {
+type mockRegisterUser struct {
 	runFn func(dto services.RegisterUserDto) error
 }
 
-func (m *MockRegisterUser) Run(dto services.RegisterUserDto) error {
+func (m *mockRegisterUser) Run(dto services.RegisterUserDto) error {
 	if m.runFn != nil {
 		return m.runFn(dto)
 	}
@@ -48,7 +48,7 @@ func TestRegisterUserHandler_ServeHTTP(t *testing.T) {
 			factorySetup: func() *MockRegisterUserFactory {
 				return &MockRegisterUserFactory{
 					createRegisterUserFn: func() services.RegisterUser {
-						return &MockRegisterUser{
+						return &mockRegisterUser{
 							runFn: func(dto services.RegisterUserDto) error {
 								if dto.Name != "test@example.com" || dto.Password != "secret" {
 									t.Error("unexpected DTO values")
@@ -89,7 +89,7 @@ func TestRegisterUserHandler_ServeHTTP(t *testing.T) {
 			factorySetup: func() *MockRegisterUserFactory {
 				return &MockRegisterUserFactory{
 					createRegisterUserFn: func() services.RegisterUser {
-						return &MockRegisterUser{
+						return &mockRegisterUser{
 							runFn: func(dto services.RegisterUserDto) error {
 								return db.ErrDuplicateEmail
 							},
